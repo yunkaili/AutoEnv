@@ -37,23 +37,25 @@ export ORIGIN_PWD=`pwd`
 
 # exvim
 # TODO: debug
-if [ -d ".exvim" ]; then
+if [ ! -d ".exvim" ]; then
   echo -e "${GREEN}exvim[1/4] cloning repo${WHITE}"
   git clone https://github.com/yunkaili/main .exvim
-  cd .exvim
-
-  echo -e "${GREEN}exvim[2/4] build vimrc${WHITE}"
-  echo "let g:exvim_custom_path='~/.exvim/'
-  source ~/.exvim/.vimrc" > ~/.vimrc
-
-  echo -e "${GREEN}exvim[3/4] install vundle${WHITE}"
-  bash unix/install.sh
-
-  echo -e "${GREEN}exvim[4/4] update plugins${WHITE}"
-  vim +PluginInstall +PluginUpdate +qall
-else
-  echo -e "${RED}exvim Installed${WHITE}"
 fi
+
+cd .exvim
+
+echo -e "${GREEN}exvim[2/4] build vimrc${WHITE}"
+echo "let g:exvim_custom_path='~/.exvim/'
+source ~/.exvim/.vimrc" > ~/.vimrc
+
+echo -e "${GREEN}exvim[3/4] install vundle${WHITE}"
+bash unix/install.sh
+
+echo -e "${GREEN}exvim[4/4] update plugins${WHITE}"
+vim +PluginInstall +qall
+echo -e "${RED}exvim Installed${WHITE}"
+
+exit 0
 
 # brew
 if [ ${isOSX} = 1 ] && [ ! hash brew 2>/dev/null ]; then
@@ -69,7 +71,9 @@ fi
 # jq - json viewer
 # TODO: add tree
 # tree - directory struct viewer
+# ftp://mama.indstate.edu/linux/tree/tree-1.8.0.tgz
 # tig - git tree
+# https://github.com/jonas/tig/releases/download/tig-2.4.1/tig-2.4.1.tar.gz
 
 # exvim
 # gawk, ctags, cscope, idutils, sed
