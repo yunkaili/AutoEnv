@@ -37,7 +37,7 @@ export ORIGIN_PWD=`pwd`
 
 # exvim
 # TODO: debug
-if [  -d ".exvim" ]; then
+if [ -d ".exvim" ]; then
   echo -e "${GREEN}exvim[1/4] cloning repo${WHITE}"
   git clone https://github.com/yunkaili/main .exvim
   cd .exvim
@@ -69,6 +69,7 @@ fi
 # jq - json viewer
 # TODO: add tree
 # tree - directory struct viewer
+# tig - git tree
 
 # exvim
 # gawk, ctags, cscope, idutils, sed
@@ -76,7 +77,7 @@ if [ ${isLinux} = 1 ]; then
   if [ ${isRoot} = 1 ]; then
     sudo -HE apt-get install axel silversearcher-ag jq
 
-    sudo -HE apt-get install gawk ctags idutils cscope
+    sudo -HE apt-get install gawk ctags id-utils cscope tree tig
   else
     source_path="/home/liyunkai/local/source"
     install_path="/home/liyunkai/local"
@@ -98,13 +99,14 @@ if [ ${isLinux} = 1 ]; then
 
     # axel
     if [ ! -x "$(command -v axel)" ]; then
+      echo -e "${RED}Install axel${WHITE}"
       cd ${source_path}
       target="axel.tar.gz"
       if [ ! -f ${target} ]; then
         wget https://github.com/axel-download-accelerator/axel/releases/download/v2.16.1/axel-2.16.1.tar.gz -O ${target} 
       fi
       tar xf ${target} 
-      cd axel-2.16.1 && ./configure --without-ssl --prefix=/home/liyunkai/local && make -j && make install
+      cd axel-2.16.1 && ./configure --without-ssl --prefix=${install_path} && make -j && make install
     fi
     # Build-time dependencies:
     # 
@@ -118,8 +120,9 @@ if [ ${isLinux} = 1 ]; then
     
     # ag
     if [ ! -x "$(command -v ag)" ]; then
-      cd ${source_path}
+      echo -e "${RED}Install ag${WHITE}"
 
+      cd ${source_path}
       # dependencies
       #pkg-config --libs liblzma
       if [ $(pkg-config --exists "liblzma"; echo $?) = 1 ]; then
@@ -129,7 +132,7 @@ if [ ${isLinux} = 1 ]; then
         if [ ! -d "xz-5.2.4" ]; then
           tar xf "xz-5.2.4.tar.gz"
         fi
-        cd xz-5.2.4 && ./configure --prefix=/home/liyunkai/local && make -j && make install
+        cd xz-5.2.4 && ./configure --prefix=${install_path} && make -j && make install
       fi
       
       cd ${source_path}
@@ -138,7 +141,7 @@ if [ ${isLinux} = 1 ]; then
         wget https://geoff.greer.fm/ag/releases/the_silver_searcher-2.2.0.tar.gz -O ${target} 
       fi
       tar xf ${target} 
-      cd the_silver_searcher-2.2.0 && ./configure --prefix=/home/liyunkai/local && make -j && make install 
+      cd the_silver_searcher-2.2.0 && ./configure --prefix=${install_path} && make -j && make install 
     fi
     # Install dependencies (Automake, pkg-config, PCRE, LZMA):
     # LZMA
@@ -146,45 +149,88 @@ if [ ${isLinux} = 1 ]; then
     
     # jq
     if [ ! -x "$(command -v jq)" ]; then
+      echo -e "${RED}Install jq${WHITE}"
       cd ${source_path}
-      if [ ! -f jq.tar.gz ]; then
-        wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-1.6.tar.gz -O jq.tar.gz
+      target="jq.tar.gz"
+      if [ ! -f ${target} ]; then
+        wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-1.6.tar.gz -O ${target} 
       fi
+      tar xf ${target}
+      cd jq-1.6 && autoreconf -i && ./configure --with-oniguruma=builtin --disable-maintainer-mode --prefix=${install_path} && make -j && make install
     fi
 
     # gawk
-    if [ -x "$(command -v gawk)" ]; then
+    if [ ! -x "$(command -v gawk)" ]; then
+      echo -e "${RED}Install gawk${WHITE}"
       cd ${source_path}
-      if [ ! -f gawk.tar.gz ]; then
-        wget http://ftp.gnu.org/gnu/gawk/gawk-4.2.1.tar.gz -O gawk.tar.gz
+      target="gawk.tar.gz"
+      if [ ! -f ${target} ]; then
+        wget http://ftp.gnu.org/gnu/gawk/gawk-4.2.1.tar.gz -O ${target} 
       fi
+      tar xf ${target}
+      unset C_INCLUDE_PATH
+      cd gawk-4.2.1 && ./configure --prefix=${install_path} && make -j && make install
+      export C_INCLUDE_PATH=/home/liyunkai/local/include:$C_INCLUDE_PATH
     fi
 
     # ctags
-    if [ -x "$(command -v ctags)" ]; then
+    if [ ! -x "$(command -v ctags)" ]; then
+      echo -e "${RED}Install ctags${WHITE}"
       cd ${source_path}
-      if [ ! -f ctags.tar.gz ]; then
-        wget http://prdownloads.sourceforge.net/ctags/ctags-5.8.tar.gz -O ctags.tar.gz
+      target="ctags.tar.gz"
+      if [ ! -f ${target} ]; then
+        wget http://prdownloads.sourceforge.net/ctags/ctags-5.8.tar.gz -O ${target} 
       fi
+      tar xf ${target}
+      cd ctags-5.8 && ./configure --prefix=${install_path} && make -j && make install
     fi
     
     # cscope
-    if [ -x "$(command -v cscope)" ]; then
-      cd ${source_path}
-      if [ ! -f cscope.tar.gz ]; then
-        wget https://downloads.sourceforge.net/project/cscope/cscope/v15.9/cscope-15.9.tar.gz -O cscope.tar.gz
+    if [ ! -x "$(command -v cscope)" ]; then
+      echo -e "${RED}Install cscope${WHITE}"
+      if [ ! -x "$(command -v ncurses6-config)" ]; then
+        cd ${source_path}
+        target="ncurses.tar.gz"
+        if [ ! -f ${target} ]; then
+          wget https://ftp.gnu.org/pub/gnu/ncurses/ncurses-6.1.tar.gz -O ${target} 
+        fi
+        tar xf ${target}
+        cd ncurses-6.1/ && ./configure --with-shared --prefix=${install_path} && make -j && make install 
       fi
+      export C_INCLUDE_PATH=/home/liyunkai/local/include/ncurses:$C_INCLUDE_PATH
+
+      cd ${source_path}
+      target="cscope.tar.gz"
+      if [ ! -f ${target} ]; then
+        wget https://downloads.sourceforge.net/project/cscope/cscope/v15.9/cscope-15.9.tar.gz -O ${target} 
+      fi
+      tar xf ${target}
+      cd cscope-15.9/ && ./configure --with-ncurses=${install_path} --prefix=${install_path} && make -j && make install
     fi
 
     # idutils
-    #wget https://downloads.sourceforge.net/project/gnuwin32/id-utils/4.0-2/id-utils-4.0-2-bin.zip -O ${source_path}/idutils.zip
+    if [ ! -x "$(command -v gid)" ]; then
+      echo -e "${RED}Install idutils${WHITE}"
+      cd ${source_path}
+      target="idutils.tar.gz"
+      if [ ! -f ${target} ]; then
+        wget https://ftp.gnu.org/gnu/idutils/idutils-4.2.tar.gz -O ${target}
+        # >= v4.5 has bugs
+      fi
+      tar xf ${target}
+      cd idutils-4.2 && ./configure --prefix=${install_path} && make -j && make install 
+    fi
 
     # sed
     if [ ! -x "$(command -v sed)" ]; then
+      echo -e "${RED}Install sed${WHITE}"
       cd ${source_path}
-      if [ ! -f sed.zip ]; then
-        wget https://downloads.sourceforge.net/project/gnuwin32/sed/4.2.1/sed-4.2.1-src.zip -O sed.zip
+      target="sed.tar.gz"
+      if [ ! -f ${target} ]; then
+        wget http://ftp.gnu.org/gnu/sed/sed-4.2.1.tar.gz -O ${target} 
       fi
+      tar xf ${target}
+      cd sed-4.2.1 && ./configure --prefix=${install_path} && make -j && make install
     fi
 
   fi
