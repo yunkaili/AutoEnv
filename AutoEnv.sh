@@ -49,13 +49,11 @@ echo "let g:exvim_custom_path='~/.exvim/'
 source ~/.exvim/.vimrc" > ~/.vimrc
 
 echo -e "${GREEN}exvim[3/4] install vundle${WHITE}"
-bash unix/install.sh
+#bash unix/install.sh
 
 echo -e "${GREEN}exvim[4/4] update plugins${WHITE}"
-vim +PluginInstall +qall
+#vim +PluginInstall +qall
 echo -e "${RED}exvim Installed${WHITE}"
-
-exit 0
 
 # brew
 if [ ${isOSX} = 1 ] && [ ! hash brew 2>/dev/null ]; then
@@ -75,174 +73,214 @@ fi
 # tig - git tree
 # https://github.com/jonas/tig/releases/download/tig-2.4.1/tig-2.4.1.tar.gz
 
-# exvim
-# gawk, ctags, cscope, idutils, sed
+source_path="/home/liyunkai/local/source"
+install_path="/home/liyunkai/local"
+export PATH=/home/liyunkai/local/bin:$PATH
+export LD_LIBRARY_PATH=/home/liyunkai/local/lib:$LD_LIBRARY_PATH
+export C_INCLUDE_PATH=/home/liyunkai/local/include:$C_INCLUDE_PATH
+export PKG_CONFIG_PATH=/home/liyunkai/local/lib/pkgconfig:$PKG_CONFIG_PATH
+
+install_w_config()
+{
+
+  local cmd target url dirname newop conf
+  while [[ ${1} ]];
+  do
+      case "${1}" in
+          -cmd)
+            cmd=${2}
+            shift
+            ;;
+          -target)
+            target=${2}
+            shift
+            ;;
+          -url)
+            url=${2}
+            shift
+            ;;
+          -dirname)
+            dirname=${2}
+            shift
+            ;;
+          -conf)
+            conf="$conf ${2}"
+            shift
+            ;;
+          -newop)
+            newop=${2}
+            shift
+            ;;
+          *) return 1 # illegal option
+      esac
+
+      if ! shift; then
+        echo 'Missing parameter argument.' >&2
+        return 1
+      fi
+
+  done
+
+  if [ ! -x "$(command -v ${cmd})" ]; then
+    echo -e "${RED}Install ${cmd}${WHITE}"
+    cd ${source_path}
+    if [ ! -f ${target} ]; then
+      wget ${url} -O ${target}
+    fi
+    tar xf ${target}
+
+    cd ${dirname}
+
+    if [ -n "${newop}" ]; then
+      eval ${newop}
+    fi
+
+    if [ -z ${conf} ]; then
+      ./configure --prefix=${install_path}
+    else
+      ./configure ${conf} --prefix=${install_path}
+    fi
+    make -j && make install
+  fi
+}
+
 if [ ${isLinux} = 1 ]; then
   if [ ${isRoot} = 1 ]; then
     sudo -HE apt-get install axel silversearcher-ag jq
-
-    sudo -HE apt-get install gawk ctags id-utils cscope tree tig
+    sudo -HE apt-get install gawk ctags id-utils cscope graphviz tree tig
   else
-    source_path="/home/liyunkai/local/source"
-    install_path="/home/liyunkai/local"
-    export PATH=/home/liyunkai/local/bin:$PATH
-    export LD_LIBRARY_PATH=/home/liyunkai/local/lib:$LD_LIBRARY_PATH
-    export C_INCLUDE_PATH=/home/liyunkai/local/include:$C_INCLUDE_PATH
-    export PKG_CONFIG_PATH=/home/liyunkai/local/lib/pkgconfig:$PKG_CONFIG_PATH
-
     echo -e "${YELLOW}install from source${WHITE}"
     echo -e "${YELLOW}download source in ${source_path}${WHITE}"
     if [ ! -d ${source_path} ]; then
       mkdir -p ${source_path}
     fi
-    
+
     if [ ! -d ${source_path} ]; then
       echo -e "${RED}${source_path} does not exist${WHITE}"
       exit 1
     fi
 
     # axel
-    if [ ! -x "$(command -v axel)" ]; then
-      echo -e "${RED}Install axel${WHITE}"
-      cd ${source_path}
-      target="axel.tar.gz"
-      if [ ! -f ${target} ]; then
-        wget https://github.com/axel-download-accelerator/axel/releases/download/v2.16.1/axel-2.16.1.tar.gz -O ${target} 
-      fi
-      tar xf ${target} 
-      cd axel-2.16.1 && ./configure --without-ssl --prefix=${install_path} && make -j && make install
-    fi
+    install_w_config \
+      -cmd axel \
+      -target axel.tar.gz \
+      -url https://github.com/axel-download-accelerator/axel/releases/download/v2.16.1/axel-2.16.1.tar.gz \
+      -dirname axel-2.16.1 \
+      -conf --without-ssl
     # Build-time dependencies:
-    # 
+    #
     # pkg-config
     # gettext
     # autopoint
     # Optional dependencies:
-    # 
+    #
     # libssl (OpenSSL, LibreSSL or compatible) -- for SSL/TLS support.
     # https://github.com/openssl/openssl/archive/OpenSSL_1_1_1a.tar.gz
-    
-    # ag
-    if [ ! -x "$(command -v ag)" ]; then
-      echo -e "${RED}Install ag${WHITE}"
 
-      cd ${source_path}
-      # dependencies
-      #pkg-config --libs liblzma
-      if [ $(pkg-config --exists "liblzma"; echo $?) = 1 ]; then
-        if [ ! -f "xz-5.2.4.tar.gz" ]; then 
-          wget https://downloads.sourceforge.net/project/lzmautils/xz-5.2.4.tar.gz
-        fi
-        if [ ! -d "xz-5.2.4" ]; then
-          tar xf "xz-5.2.4.tar.gz"
-        fi
-        cd xz-5.2.4 && ./configure --prefix=${install_path} && make -j && make install
+    # ag
+    cd ${source_path}
+    # dependencies
+    #pkg-config --libs liblzma
+    if [ $(pkg-config --exists "liblzma"; echo $?) = 1 ]; then
+      if [ ! -f "xz-5.2.4.tar.gz" ]; then
+        wget https://downloads.sourceforge.net/project/lzmautils/xz-5.2.4.tar.gz
       fi
-      
-      cd ${source_path}
-      target="ag.tar.gz"
-      if [ ! -f ${target} ]; then
-        wget https://geoff.greer.fm/ag/releases/the_silver_searcher-2.2.0.tar.gz -O ${target} 
+      if [ ! -d "xz-5.2.4" ]; then
+        tar xf "xz-5.2.4.tar.gz"
       fi
-      tar xf ${target} 
-      cd the_silver_searcher-2.2.0 && ./configure --prefix=${install_path} && make -j && make install 
+      cd xz-5.2.4 && ./configure --prefix=${install_path} && make -j && make install
     fi
+
+    install_w_config \
+      -cmd ag \
+      -target ag.tar.gz \
+      -url https://geoff.greer.fm/ag/releases/the_silver_searcher-2.2.0.tar.gz\
+      -dirname the_silver_searcher-2.2.0
     # Install dependencies (Automake, pkg-config, PCRE, LZMA):
     # LZMA
     # https://downloads.sourceforge.net/project/lzmautils/xz-5.2.4.tar.gz
-    
+
     # jq
-    if [ ! -x "$(command -v jq)" ]; then
-      echo -e "${RED}Install jq${WHITE}"
-      cd ${source_path}
-      target="jq.tar.gz"
-      if [ ! -f ${target} ]; then
-        wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-1.6.tar.gz -O ${target} 
-      fi
-      tar xf ${target}
-      cd jq-1.6 && autoreconf -i && ./configure --with-oniguruma=builtin --disable-maintainer-mode --prefix=${install_path} && make -j && make install
-    fi
+    install_w_config \
+      -cmd jq \
+      -target jq.tar.gz \
+      -url https://github.com/stedolan/jq/releases/download/jq-1.6/jq-1.6.tar.gz \
+      -dirname jq-1.6 \
+      -newop "autoreconf -i" \
+      -conf --with-oniguruma=builtin \
+      -conf --disable-maintainer-mode
 
     # gawk
-    if [ ! -x "$(command -v gawk)" ]; then
-      echo -e "${RED}Install gawk${WHITE}"
-      cd ${source_path}
-      target="gawk.tar.gz"
-      if [ ! -f ${target} ]; then
-        wget http://ftp.gnu.org/gnu/gawk/gawk-4.2.1.tar.gz -O ${target} 
-      fi
-      tar xf ${target}
-      unset C_INCLUDE_PATH
-      cd gawk-4.2.1 && ./configure --prefix=${install_path} && make -j && make install
-      export C_INCLUDE_PATH=/home/liyunkai/local/include:$C_INCLUDE_PATH
-    fi
+    install_w_config \
+      -cmd gawk \
+      -target gawk.tar.gz \
+      -url http://ftp.gnu.org/gnu/gawk/gawk-4.2.1.tar.gz \
+      -dirname gawk-4.2.1 \
+      -newop "unset C_INCLUDE_PATH"
+    export C_INCLUDE_PATH=/home/liyunkai/local/include:$C_INCLUDE_PATH
 
     # ctags
-    if [ ! -x "$(command -v ctags)" ]; then
-      echo -e "${RED}Install ctags${WHITE}"
-      cd ${source_path}
-      target="ctags.tar.gz"
-      if [ ! -f ${target} ]; then
-        wget http://prdownloads.sourceforge.net/ctags/ctags-5.8.tar.gz -O ${target} 
-      fi
-      tar xf ${target}
-      cd ctags-5.8 && ./configure --prefix=${install_path} && make -j && make install
-    fi
-    
-    # cscope
-    if [ ! -x "$(command -v cscope)" ]; then
-      echo -e "${RED}Install cscope${WHITE}"
-      if [ ! -x "$(command -v ncurses6-config)" ]; then
-        cd ${source_path}
-        target="ncurses.tar.gz"
-        if [ ! -f ${target} ]; then
-          wget https://ftp.gnu.org/pub/gnu/ncurses/ncurses-6.1.tar.gz -O ${target} 
-        fi
-        tar xf ${target}
-        cd ncurses-6.1/ && ./configure --with-shared --prefix=${install_path} && make -j && make install 
-      fi
-      export C_INCLUDE_PATH=/home/liyunkai/local/include/ncurses:$C_INCLUDE_PATH
+    install_w_config \
+      -cmd ctags \
+      -target ctags.tar.gz \
+      -url http://prdownloads.sourceforge.net/ctags/ctags-5.8.tar.gz \
+      -dirname ctags-5.8
 
-      cd ${source_path}
-      target="cscope.tar.gz"
-      if [ ! -f ${target} ]; then
-        wget https://downloads.sourceforge.net/project/cscope/cscope/v15.9/cscope-15.9.tar.gz -O ${target} 
-      fi
-      tar xf ${target}
-      cd cscope-15.9/ && ./configure --with-ncurses=${install_path} --prefix=${install_path} && make -j && make install
-    fi
+    # cscope
+    # dependencies
+    install_w_config \
+      -cmd ncurses6-config \
+      -target ncurses.tar.gz \
+      -url https://ftp.gnu.org/pub/gnu/ncurses/ncurses-6.1.tar.gz \
+      -dirname ncurses-6.1 \
+      -conf --with-shared \
+      -conf --enable-pc-files
+    export C_INCLUDE_PATH=/home/liyunkai/local/include/ncurses:$C_INCLUDE_PATH
+
+    install_w_config \
+      -cmd cscope \
+      -target cscope.tar.gz \
+      -url https://downloads.sourceforge.net/project/cscope/cscope/v15.9/cscope-15.9.tar.gz \
+      -dirname cscope-15.9 \
+      -conf --with-ncurses=${install_path}
 
     # idutils
-    if [ ! -x "$(command -v gid)" ]; then
-      echo -e "${RED}Install idutils${WHITE}"
-      cd ${source_path}
-      target="idutils.tar.gz"
-      if [ ! -f ${target} ]; then
-        wget https://ftp.gnu.org/gnu/idutils/idutils-4.2.tar.gz -O ${target}
-        # >= v4.5 has bugs
-      fi
-      tar xf ${target}
-      cd idutils-4.2 && ./configure --prefix=${install_path} && make -j && make install 
-    fi
+    # >= v4.5 has bugs
+    install_w_config \
+      -cmd gid \
+      -target idutils.tar.gz \
+      -url https://ftp.gnu.org/gnu/idutils/idutils-4.2.tar.gz \
+      -dirname idutils-4.2
 
     # sed
-    if [ ! -x "$(command -v sed)" ]; then
-      echo -e "${RED}Install sed${WHITE}"
-      cd ${source_path}
-      target="sed.tar.gz"
-      if [ ! -f ${target} ]; then
-        wget http://ftp.gnu.org/gnu/sed/sed-4.2.1.tar.gz -O ${target} 
-      fi
-      tar xf ${target}
-      cd sed-4.2.1 && ./configure --prefix=${install_path} && make -j && make install
-    fi
+    install_w_config \
+      -cmd sed \
+      -target sed.tar.gz \
+      -url http://ftp.gnu.org/gnu/sed/sed-4.2.1.tar.gz \
+      -dirname sed-4.2.1
 
+    # tree
+    # install_w_config \
+      # -cmd tree \
+      # -target tree.tgz \
+      # -url http://mama.indstate.edu/users/ice/tree/src/tree-1.8.0.tgz \
+      # -dirname tree-1.8.0
+
+    echo -e "${REA}You may need to install ${YELLOW}tree ${RED}manually"
+    echo -e "${GREEN}http://mama.indstate.edu/users/ice/tree/src/tree-1.8.0.tgz${WHITE}"
+
+    # tig
+    # install_w_config \
+      # -cmd tig \
+      # -target tig.tar.gz \
+      # -url https://github.com/jonas/tig/releases/download/tig-2.4.1/tig-2.4.1.tar.gz \
+      # -dirname tig-2.4.1
   fi
 elif [ ${isOSX} = 1 ]; then
   brew install axel the_silver_searcher jq
 
   brew install macvim --with-cscope --with-lua --HEAD
-  brew install gawk ctags cscope idutils graphviz
+  brew install gawk ctags cscope idutils graphviz tree tig
 fi
 
 # zsh
