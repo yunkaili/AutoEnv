@@ -82,7 +82,6 @@ export PKG_CONFIG_PATH=/home/liyunkai/local/lib/pkgconfig:$PKG_CONFIG_PATH
 
 install_w_config()
 {
-
   local cmd target url dirname newop conf
   while [[ ${1} ]];
   do
@@ -285,6 +284,18 @@ fi
 
 # zsh
 cd ${ORIGIN_PWD}
+
+# you may reinstall zsh
+sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+
+# you may re-install
+if [ ${isRoot} = 1 ]; then
+  sudo usermod -s /bin/zsh $(whoami)
+else
+  echo "pass"
+fi
+
+# .tmux
 
 # YouCompleteMe
 
