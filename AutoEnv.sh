@@ -5,6 +5,13 @@ GREEN='\e[1;32m'
 YELLOW='\e[1;33m'
 WHITE='\e[1;37m'
 
+# absolute path of AutoEnv.sh
+abpath=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+# Install in the home directory in default
+# replace the default path if needed
+origin="/home/liyunkai"
+
 # Check System
 case "$(uname -s)" in
     Linux*)     machine=Linux;;
@@ -32,8 +39,7 @@ fi
 echo -e "${GREEN}System Check Pass"
 
 # Auto env script
-cd ~
-export ORIGIN_PWD=`pwd`
+cd ${origin}
 
 # exvim
 # TODO: debug
@@ -67,18 +73,16 @@ fi
 # axel - download tools
 # silversearcher-ag - better than grep
 # jq - json viewer
+# tig - git tree
 # TODO: add tree
 # tree - directory struct viewer
-# ftp://mama.indstate.edu/linux/tree/tree-1.8.0.tgz
-# tig - git tree
-# https://github.com/jonas/tig/releases/download/tig-2.4.1/tig-2.4.1.tar.gz
 
-source_path="/home/liyunkai/local/source"
-install_path="/home/liyunkai/local"
-export PATH=/home/liyunkai/local/bin:$PATH
-export LD_LIBRARY_PATH=/home/liyunkai/local/lib:$LD_LIBRARY_PATH
-export C_INCLUDE_PATH=/home/liyunkai/local/include:$C_INCLUDE_PATH
-export PKG_CONFIG_PATH=/home/liyunkai/local/lib/pkgconfig:$PKG_CONFIG_PATH
+source_path=${origin}/local/source
+install_path=${origin}/local
+export PATH=${origin}/local/bin:$PATH
+export LD_LIBRARY_PATH=${origin}/local/lib:$LD_LIBRARY_PATH
+export C_INCLUDE_PATH=${origin}/local/include:$C_INCLUDE_PATH
+export PKG_CONFIG_PATH=${origin}/local/lib/pkgconfig:$PKG_CONFIG_PATH
 
 install_w_config()
 {
@@ -121,11 +125,19 @@ install_w_config()
   done
 
   if [ ! -x "$(command -v ${cmd})" ]; then
+
     echo -e "${RED}Install ${cmd}${WHITE}"
+
     cd ${source_path}
+
     if [ ! -f ${target} ]; then
       wget ${url} -O ${target}
     fi
+
+    if [ -d ${dirname} ]; then
+      /bin/rm ${dirname} -rf
+    fi
+
     tar xf ${target}
 
     cd ${dirname}
@@ -139,7 +151,9 @@ install_w_config()
     else
       ./configure ${conf} --prefix=${install_path}
     fi
+
     make -j && make install
+
   fi
 }
 
@@ -216,7 +230,7 @@ if [ ${isLinux} = 1 ]; then
       -url http://ftp.gnu.org/gnu/gawk/gawk-4.2.1.tar.gz \
       -dirname gawk-4.2.1 \
       -newop "unset C_INCLUDE_PATH"
-    export C_INCLUDE_PATH=/home/liyunkai/local/include:$C_INCLUDE_PATH
+    export C_INCLUDE_PATH=${origin}/local/include:$C_INCLUDE_PATH
 
     # ctags
     install_w_config \
@@ -234,7 +248,7 @@ if [ ${isLinux} = 1 ]; then
       -dirname ncurses-6.1 \
       -conf --with-shared \
       -conf --enable-pc-files
-    export C_INCLUDE_PATH=/home/liyunkai/local/include/ncurses:$C_INCLUDE_PATH
+    export C_INCLUDE_PATH=${origin}/local/include/ncurses:$C_INCLUDE_PATH
 
     install_w_config \
       -cmd cscope \
@@ -269,11 +283,22 @@ if [ ${isLinux} = 1 ]; then
     echo -e "${GREEN}http://mama.indstate.edu/users/ice/tree/src/tree-1.8.0.tgz${WHITE}"
 
     # tig
-    # install_w_config \
-      # -cmd tig \
-      # -target tig.tar.gz \
-      # -url https://github.com/jonas/tig/releases/download/tig-2.4.1/tig-2.4.1.tar.gz \
-      # -dirname tig-2.4.1
+    # dependencies
+    # cd ${source_path}
+    # if [ ! -f "libiconv-1.15.tar.gz" ]; then
+      # wget https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz
+    # fi
+    # if [ ! -d "libiconv-1.15" ]; then
+      # tar xf "libiconv-1.15.tar.gz"
+    # fi
+    # cd libiconv-1.15 && ./configure --prefix=${install_path} && make -j && make install
+
+    install_w_config \
+      -cmd tig \
+      -target tig.tar.gz \
+      -url https://github.com/jonas/tig/releases/download/tig-2.4.1/tig-2.4.1.tar.gz \
+      -dirname tig-2.4.1 \
+      -conf "LDFLAGS=-L${origin}/local/lib"
   fi
 elif [ ${isOSX} = 1 ]; then
   brew install axel the_silver_searcher jq
@@ -283,19 +308,38 @@ elif [ ${isOSX} = 1 ]; then
 fi
 
 # zsh
-cd ${ORIGIN_PWD}
+cd ${origin}
 
-# you may reinstall zsh
-sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+if [ ! -d "${origin}/.oh-my-zsh" ]; then
+  # you may reinstall zsh
+  sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 
-# you may re-install
-if [ ${isRoot} = 1 ]; then
-  sudo usermod -s /bin/zsh $(whoami)
+  # you may re-install
+  if [ ${isRoot} = 1 ]; then
+    sudo usermod -s /bin/zsh $(whoami)
+  else
+    chsh -s /bin/zsh
+  fi
 else
-  echo "pass"
+  echo -e "${RED}.oh-my-zsh is found in ${origin}"
 fi
 
+# oh-my-zsh plugins
+# zsh-autosuggestions
+if [ ! -d "${origin}/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
+  git clone https://github.com/zsh-users/zsh-autosuggestions "${origin}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+fi
+# copy defalut zsh config
+cp -f "${abpath}/.zshrc" ${origin}
+
 # .tmux
+cd ${origin}
+if [ ! -d "${origin}/.tmux" ]; then
+  git clone https://github.com/gpakosz/.tmux.git
+fi
+ln -s -f .tmux/.tmux.conf
+# cp .tmux/.tmux.conf.local .
+cp "${abpath}/.tmux.conf.local" ${origin}
 
 # YouCompleteMe
 
