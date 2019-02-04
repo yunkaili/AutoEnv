@@ -79,6 +79,7 @@ fi
 
 source_path=${origin}/local/source
 install_path=${origin}/local
+unset LD_LIBRARY_PATH C_INCLUDE_PATH PKG_CONFIG_PATH
 export PATH=${origin}/local/bin:$PATH
 export LD_LIBRARY_PATH=${origin}/local/lib:$LD_LIBRARY_PATH
 export C_INCLUDE_PATH=${origin}/local/include:$C_INCLUDE_PATH
