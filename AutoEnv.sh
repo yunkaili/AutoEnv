@@ -77,14 +77,6 @@ fi
 # TODO: add tree
 # tree - directory struct viewer
 
-source_path=${origin}/local/source
-install_path=${origin}/local
-unset LD_LIBRARY_PATH C_INCLUDE_PATH PKG_CONFIG_PATH
-export PATH=${origin}/local/bin:$PATH
-export LD_LIBRARY_PATH=${origin}/local/lib:$LD_LIBRARY_PATH
-export C_INCLUDE_PATH=${origin}/local/include:$C_INCLUDE_PATH
-export PKG_CONFIG_PATH=${origin}/local/lib/pkgconfig:$PKG_CONFIG_PATH
-
 install_w_config()
 {
   local cmd target url dirname newop conf
@@ -163,8 +155,18 @@ if [ ${isLinux} = 1 ]; then
     sudo -HE apt-get install axel silversearcher-ag jq
     sudo -HE apt-get install gawk ctags id-utils cscope graphviz tree tig
   else
+
+    source_path=${origin}/local/source
+    install_path=${origin}/local
+    unset LD_LIBRARY_PATH C_INCLUDE_PATH PKG_CONFIG_PATH
+    export PATH=${origin}/local/bin:$PATH
+    export LD_LIBRARY_PATH=${origin}/local/lib:$LD_LIBRARY_PATH
+    export C_INCLUDE_PATH=${origin}/local/include:$C_INCLUDE_PATH
+    export PKG_CONFIG_PATH=${origin}/local/lib/pkgconfig:$PKG_CONFIG_PATH
+
     echo -e "${YELLOW}install from source${WHITE}"
     echo -e "${YELLOW}download source in ${source_path}${WHITE}"
+
     if [ ! -d ${source_path} ]; then
       mkdir -p ${source_path}
     fi
@@ -315,14 +317,22 @@ if [ ! -d "${origin}/.oh-my-zsh" ]; then
   # you may reinstall zsh
   sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 
-  # you may re-install
+  # copy defalut zsh config
+  cp -f "${abpath}/.zshrc" ${origin}
+
+  # change default shell to zsh
   if [ ${isRoot} = 1 ]; then
     sudo usermod -s /bin/zsh $(whoami)
   else
     chsh -s /bin/zsh
   fi
+
+  echo -e "${RED}To make default shell zsh, You need to re-login"
+  echo -e "sudo usermod -s /bin/zsh \$\(whoami\)"
+  echo -e "chsh -s /bin/zsh${WHITE}"
+
 else
-  echo -e "${RED}.oh-my-zsh is found in ${origin}"
+  echo -e "${RED}.oh-my-zsh is found in ${origin}${WHITE}"
 fi
 
 # oh-my-zsh plugins
@@ -330,18 +340,26 @@ fi
 if [ ! -d "${origin}/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
   git clone https://github.com/zsh-users/zsh-autosuggestions "${origin}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
 fi
-# copy defalut zsh config
-cp -f "${abpath}/.zshrc" ${origin}
 
 # .tmux
-cd ${origin}
 if [ ! -d "${origin}/.tmux" ]; then
+  cd ${origin}
   git clone https://github.com/gpakosz/.tmux.git
+  ln -s -f .tmux/.tmux.conf
+  cp "${abpath}/.tmux.conf.local" ${origin}
 fi
-ln -s -f .tmux/.tmux.conf
-# cp .tmux/.tmux.conf.local .
-cp "${abpath}/.tmux.conf.local" ${origin}
+
+echo "run following instructions when log into a server"
+echo -e "${YELLOW}eval \`ssh-agent -s\`"
+echo -e "ssh-add .ssh/id_rsa${WHITE}"
+
+# awesome terminal fonts install
+if [ ! -d "awesome-terminal-fonts" ]; then
+  git clone https://github.com/gabrielelana/awesome-terminal-fonts
+  cd "awesome-terminal-fonts"
+  git checkout pathcing-strategy
+  ./droid.sh
+fi
 
 # YouCompleteMe
-
 
