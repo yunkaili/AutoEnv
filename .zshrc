@@ -12,7 +12,7 @@ ZSH_THEME='ys'
 # ZSH_THEME="powerlevel9k/powerlevel9k"
 
 # powerlevel9k config
-# POWERLEVEL9K_MODE='awesome-patched'
+# POWERLEVEL9K_MODE='awesome-patched' # nerdfont-complete
 # POWERLEVEL9K_PROMPT_ON_NEWLINE=true
 # POWERLEVEL9K_RPROMPT_ON_NEWLINE=true
 # POWERLEVEL9K_MULTILINE_FIRST_PROMPT_PREFIX="%{%F{249}%}\u250f"

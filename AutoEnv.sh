@@ -361,16 +361,16 @@ echo -e "ssh-add .ssh/id_rsa${WHITE}"
   # ./droid.sh
 # fi
 
-if [ ! -d "nerd-fonts" ]; then
-  if isLinux; then
-    git clone https://github.com/ryanoasis/nerd-fonts.git
-    cd nerd-fonts
-    ./install.sh
-  elif isOSX; then
-    brew tap caskroom/fonts
-    brew cask install font-hack-nerd-font
-  fi
-fi
+# if [ ! -d "nerd-fonts" ]; then
+  # if isLinux; then
+    # git clone https://github.com/ryanoasis/nerd-fonts.git
+    # cd nerd-fonts
+    # ./install.sh
+  # elif isOSX; then
+    # brew tap caskroom/fonts
+    # brew cask install font-hack-nerd-font
+  # fi
+# fi
 
 # YouCompleteMe
 
