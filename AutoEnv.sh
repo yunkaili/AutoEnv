@@ -341,6 +341,11 @@ if [ ! -d "${origin}/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
   git clone https://github.com/zsh-users/zsh-autosuggestions "${origin}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
 fi
 
+# powerlevel9k
+if [ ! -d "${origin}/.oh-my-zsh/custom/themes/powerlevel9k" ]; then
+  git clone https://github.com/bhilburn/powerlevel9k.git ~/.oh-my-zsh/custom/themes/powerlevel9k
+fi
+
 # .tmux
 if [ ! -d "${origin}/.tmux" ]; then
   cd ${origin}
@@ -361,16 +366,22 @@ echo -e "ssh-add .ssh/id_rsa${WHITE}"
   # ./droid.sh
 # fi
 
-# if [ ! -d "nerd-fonts" ]; then
-  # if isLinux; then
-    # git clone https://github.com/ryanoasis/nerd-fonts.git
-    # cd nerd-fonts
-    # ./install.sh
-  # elif isOSX; then
-    # brew tap caskroom/fonts
-    # brew cask install font-hack-nerd-font
-  # fi
-# fi
+if [ ! -d "nerd-fonts" ]; then
+  if isLinux; then
+    git clone https://github.com/ryanoasis/nerd-fonts.git
+    cd nerd-fonts
+    ./install.sh
+  elif isOSX; then
+    brew tap caskroom/fonts
+    brew cask install caskroom/fonts/font-awesome-terminal-fonts
+    brew cask install caskroom/fonts/font-hack-nerd-font
+  fi
+fi
+
+if isOSX; then
+  brew tap caskroom/cask
+  brew cask install iterm2 zsh ffmpeg astrill cleanmymac iina keka xee baidunetdisk dash foxitreader mendeley transmit
+fi
 
 # YouCompleteMe
 
