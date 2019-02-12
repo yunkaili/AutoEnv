@@ -381,10 +381,22 @@ if [ ! -d "nerd-fonts" ]; then
   fi
 fi
 
+# common apps
 if [ ${isOSX} = 1 ]; then
   brew tap caskroom/cask
   brew cask install iterm2 astrill cleanmymac iina keka baidunetdisk dash foxitreader mendeley transmit
 fi
 
+# install colorls
+if [ ${isOSX} = 1 ]; then
+  brew install ruby
+  sudo gem install colorls
+  ( cd $ZSH_CUSTOM/plugins && git clone https://github.com/gretzky/auto-color-ls )
+fi
+
 # YouCompleteMe
+if [ ${isOSX} = 1 ]; then
+  brew install python3 macvim
+  echo "${RED}entering YouCompleteMe and run python3 install.py --clang-completer${WHITE}"
+fi
 
