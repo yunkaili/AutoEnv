@@ -10,7 +10,8 @@ abpath=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 # Install in the home directory in default
 # replace the default path if needed
-origin="/home/liyunkai"
+# origin="/Users/liyunkai"
+origin = $HOME
 
 # Check System
 case "$(uname -s)" in
@@ -48,23 +49,25 @@ if [ ! -d ".exvim" ]; then
   git clone https://github.com/yunkaili/main .exvim
 fi
 
-cd .exvim
+cd "${origin}/.exvim"
+
 
 echo -e "${GREEN}exvim[2/4] build vimrc${WHITE}"
 echo "let g:exvim_custom_path='~/.exvim/'
 source ~/.exvim/.vimrc" > ~/.vimrc
 
 echo -e "${GREEN}exvim[3/4] install vundle${WHITE}"
-#bash unix/install.sh
+bash unix/install.sh
 
 echo -e "${GREEN}exvim[4/4] update plugins${WHITE}"
-#vim +PluginInstall +qall
+vim +PluginInstall +qall
 echo -e "${RED}exvim Installed${WHITE}"
 
 # brew
 if [ ${isOSX} = 1 ] && [ ! hash brew 2>/dev/null ]; then
   echo -e "${GREEN}Install Brew${WHITE}"
   /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  brew install zsh
 else
   echo -e "${RED}No Brew Install${WHITE}"
 fi
@@ -306,7 +309,7 @@ if [ ${isLinux} = 1 ]; then
 elif [ ${isOSX} = 1 ]; then
   brew install axel the_silver_searcher jq
 
-  brew install macvim --with-cscope --with-lua --HEAD
+  #brew install macvim --with-cscope --with-lua --HEAD
   brew install gawk ctags cscope idutils graphviz tree tig
 fi
 
@@ -367,20 +370,20 @@ echo -e "ssh-add .ssh/id_rsa${WHITE}"
 # fi
 
 if [ ! -d "nerd-fonts" ]; then
-  if isLinux; then
+  if [ ${isLinux} = 1 ]; then
     git clone https://github.com/ryanoasis/nerd-fonts.git
     cd nerd-fonts
     ./install.sh
-  elif isOSX; then
+  elif [ ${isOSX} = 1 ]; then
     brew tap caskroom/fonts
     brew cask install caskroom/fonts/font-awesome-terminal-fonts
     brew cask install caskroom/fonts/font-hack-nerd-font
   fi
 fi
 
-if isOSX; then
+if [ ${isOSX} = 1 ]; then
   brew tap caskroom/cask
-  brew cask install iterm2 zsh ffmpeg astrill cleanmymac iina keka xee baidunetdisk dash foxitreader mendeley transmit
+  brew cask install iterm2 astrill cleanmymac iina keka baidunetdisk dash foxitreader mendeley transmit
 fi
 
 # YouCompleteMe
