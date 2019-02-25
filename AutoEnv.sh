@@ -155,8 +155,19 @@ install_w_config()
 
 if [ ${isLinux} = 1 ]; then
   if [ ${isRoot} = 1 ]; then
-    sudo -HE apt-get install axel silversearcher-ag jq
-    sudo -HE apt-get install gawk ctags id-utils cscope graphviz tree tig
+
+    if [ -x "$(command -v apt-get)" ]; then
+      install_tool="apt-get"
+    elif [ -x "$(command -v yum)" ]; then
+      install_tool="yum"
+    else
+      echo "Unknown System"
+      exit
+    fi
+
+    sudo -HE ${install_tool} install axel silversearcher-ag jq
+    sudo -HE ${install_tool} install gawk ctags id-utils cscope graphviz tree tig
+
   else
 
     source_path=${origin}/local/source
