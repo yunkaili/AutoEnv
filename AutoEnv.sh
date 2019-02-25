@@ -10,8 +10,8 @@ abpath=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 # Install in the home directory in default
 # replace the default path if needed
-# origin="/Users/liyunkai"
-origin = $HOME
+origin="/home/ykli"
+# origin = $HOME
 
 # Check System
 case "$(uname -s)" in
@@ -157,16 +157,16 @@ if [ ${isLinux} = 1 ]; then
   if [ ${isRoot} = 1 ]; then
 
     if [ -x "$(command -v apt-get)" ]; then
-      install_tool="apt-get"
+      sudo -HE apt-get install axel silversearcher-ag jq
+      sudo -HE apt-get install gawk ctags id-utils cscope graphviz tree tig
     elif [ -x "$(command -v yum)" ]; then
-      install_tool="yum"
+      sudo -HE yum install axel the_silver_searcher jq
+      sudo -HE yum install gawk ctags id-utils cscope graphviz tree tig
     else
       echo "Unknown System"
       exit
     fi
 
-    sudo -HE ${install_tool} install axel silversearcher-ag jq
-    sudo -HE ${install_tool} install gawk ctags id-utils cscope graphviz tree tig
 
   else
 
@@ -208,9 +208,9 @@ if [ ${isLinux} = 1 ]; then
     # https://github.com/openssl/openssl/archive/OpenSSL_1_1_1a.tar.gz
 
     # ag
-    cd ${source_path}
+    # cd ${source_path}
     # dependencies
-    #pkg-config --libs liblzma
+    pkg-config --libs liblzma
     if [ $(pkg-config --exists "liblzma"; echo $?) = 1 ]; then
       if [ ! -f "xz-5.2.4.tar.gz" ]; then
         wget https://downloads.sourceforge.net/project/lzmautils/xz-5.2.4.tar.gz
@@ -301,14 +301,14 @@ if [ ${isLinux} = 1 ]; then
 
     # tig
     # dependencies
-    # cd ${source_path}
-    # if [ ! -f "libiconv-1.15.tar.gz" ]; then
-      # wget https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz
-    # fi
-    # if [ ! -d "libiconv-1.15" ]; then
-      # tar xf "libiconv-1.15.tar.gz"
-    # fi
-    # cd libiconv-1.15 && ./configure --prefix=${install_path} && make -j && make install
+    cd ${source_path}
+    if [ ! -f "libiconv-1.15.tar.gz" ]; then
+      wget https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz
+    fi
+    if [ ! -d "libiconv-1.15" ]; then
+      tar xf "libiconv-1.15.tar.gz"
+    fi
+    cd libiconv-1.15 && ./configure --prefix=${install_path} && make -j && make install
 
     install_w_config \
       -cmd tig \
