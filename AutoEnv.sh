@@ -210,7 +210,7 @@ if [ ${isLinux} = 1 ]; then
     # ag
     # cd ${source_path}
     # dependencies
-    pkg-config --libs liblzma
+    # pkg-config --libs liblzma
     if [ $(pkg-config --exists "liblzma"; echo $?) = 1 ]; then
       if [ ! -f "xz-5.2.4.tar.gz" ]; then
         wget https://downloads.sourceforge.net/project/lzmautils/xz-5.2.4.tar.gz
@@ -264,7 +264,8 @@ if [ ${isLinux} = 1 ]; then
       -url https://ftp.gnu.org/pub/gnu/ncurses/ncurses-6.1.tar.gz \
       -dirname ncurses-6.1 \
       -conf --with-shared \
-      -conf --enable-pc-files
+      -conf --enable-pc-files \
+      -conf --with-install-prefix
     export C_INCLUDE_PATH=${origin}/local/include/ncurses:$C_INCLUDE_PATH
 
     install_w_config \
@@ -316,6 +317,21 @@ if [ ${isLinux} = 1 ]; then
       -url https://github.com/jonas/tig/releases/download/tig-2.4.1/tig-2.4.1.tar.gz \
       -dirname tig-2.4.1 \
       -conf "LDFLAGS=-L${origin}/local/lib"
+
+    # TODO: upgrade command
+    # sudo yum install libevent-devel
+    # install_w_config \
+      # -cmd tmux \
+      # -target tmux.tar.gz \
+      # -url https://github.com/tmux/tmux/archive/2.8.tar.gz \
+      # -dirname tmux-2.8
+
+    # install_w_config \
+      # -cmd git \
+      # -target git.tar.gz \
+      # -url https://github.com/git/git/archive/v2.21.0-rc2.tar.gz \
+      # -dirname git
+
   fi
 elif [ ${isOSX} = 1 ]; then
   brew install axel the_silver_searcher jq

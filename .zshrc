@@ -1,6 +1,6 @@
 export TERM="xterm-256color"
 # If you come from bash you might have to change your $PATH.
-export PATH=$HOME/bin:/usr/local/bin:$PATH
+export PATH=$HOME/local/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
@@ -70,11 +70,10 @@ source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
-export PATH=/home/liyunkai/local/bin:$PATH
-export LD_LIBRARY_PATH=/home/liyunkai/local/lib:$LD_LIBRARY_PATH
-export C_INCLUDE_PATH=/home/liyunkai/local/include:$C_INCLUDE_PATH
-export C_INCLUDE_PATH=/home/liyunkai/local/include/ncurses:$C_INCLUDE_PATH
-export PKG_CONFIG_PATH=/home/liyunkai/local/lib/pkgconfig:$PKG_CONFIG_PATH
+export PATH=$HOME/local/bin:$PATH
+export LD_LIBRARY_PATH=$HOME/local/lib:$LD_LIBRARY_PATH
+export C_INCLUDE_PATH=$HOME/local/include:$C_INCLUDE_PATH
+export PKG_CONFIG_PATH=$HOME/local/lib/pkgconfig:$PKG_CONFIG_PATH
 
 # Pytorch
 export OMP_NUM_THREADS=1
