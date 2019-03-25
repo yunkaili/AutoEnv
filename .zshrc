@@ -1,6 +1,12 @@
+#!/bin/zsh
+# File              : .zshrc
+# Author            : Yunkai Li <ykli@aibee.cn>
+# Date              : 25.03.2019
+# Last Modified Date: 25.03.2019
+# Last Modified By  : Yunkai Li <ykli@aibee.cn>
 export TERM="xterm-256color"
 # If you come from bash you might have to change your $PATH.
-export PATH=$HOME/local/bin:/usr/local/bin:$PATH
+export PATH=$HOME/local/bin:$HOME/.local/bin/:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
@@ -8,7 +14,7 @@ export ZSH=$HOME/.oh-my-zsh
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="dracula"
+ZSH_THEME="bira"
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -56,10 +62,8 @@ plugins=(colored-man-pages
          common-aliases
          git
          last-working-dir
-         osx
-         pip
-         rsync
          tmux
+         thefuck
          vi-mode
          zsh-autosuggestions
          zsh-completion
@@ -69,8 +73,6 @@ plugins=(colored-man-pages
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
-
-export PATH=$HOME/local/bin:$PATH
 export LD_LIBRARY_PATH=$HOME/local/lib:$LD_LIBRARY_PATH
 export C_INCLUDE_PATH=$HOME/local/include:$C_INCLUDE_PATH
 export PKG_CONFIG_PATH=$HOME/local/lib/pkgconfig:$PKG_CONFIG_PATH
@@ -104,6 +106,8 @@ export SSH_KEY_PATH="~/.ssh/rsa_id"
 alias du='du -h'
 alias df='df -h'
 alias ag='ag --noaffinity'
+alias ipython='python3 -m IPython'
+eval $(thefuck --alias)
 
 # trash
 mkdir -p ~/.trash

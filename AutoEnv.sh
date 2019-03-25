@@ -1,4 +1,9 @@
 #!/bin/bash
+# File              : AutoEnv.sh
+# Author            : Yunkai Li <ykli@aibee.cn>
+# Date              : 25.03.2019
+# Last Modified Date: 25.03.2019
+# Last Modified By  : Yunkai Li <ykli@aibee.cn>
 
 RED='\e[1;31m'
 GREEN='\e[1;32m'
@@ -219,6 +224,16 @@ if [ ${isLinux} = 1 ]; then
         tar xf "xz-5.2.4.tar.gz"
       fi
       cd xz-5.2.4 && ./configure --prefix=${install_path} && make -j && make install
+    fi
+
+    if [ $(pkg-config --exists "libpcre"; echo $?) = 1 ]; then
+      if [ ! -f "pcre-8.35.tar.gz" ]; then
+        wget https://sourceforge.net/projects/pcre/files/pcre/8.35/pcre-8.35.tar.gz
+      fi
+      if [ ! -d "pcre-8.35" ]; then
+        tar xf "pcre-8.35.tar.gz"
+      fi
+      cd pcre-8.35 && ./configure --prefix=${install_path} && make -j && make install
     fi
 
     install_w_config \
