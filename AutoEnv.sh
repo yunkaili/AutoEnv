@@ -15,7 +15,7 @@ abpath=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 # Install in the home directory in default
 # replace the default path if needed
-origin = $HOME
+origin=$HOME
 
 # Check System
 case "$(uname -s)" in
@@ -34,41 +34,48 @@ else
   echo -e "${RED}Support Mac or Linux"
   exit 0
 fi
-echo -e "${GREEN}System Check Pass"
+echo -e "${GREEN}System Check Pass${WHITE}"
 
 # Auto env script
 cd ${origin}
 
-# exvim
-if [ ! -d ".exvim" ]; then
-  echo -e "${GREEN}exvim[1/4] cloning repo${WHITE}"
-  git clone https://github.com/yunkaili/main .exvim
+# Python ENV Check
+if [ ! -x "$(command -v python3)" ]; then
+  echo "install python3 first"
+  exit
+  # if [ ${isLinux} = 1 ]; then
+  #   # install by root
+  #   if [ -x "$(command -v apt-get)" ]; then
+  #     sudo -HE apt-get install python3 python3-pip 
+  #   elif [ -x "$(command -v yum)" ]; then
+  #     sudo yum -HE install yum-utils
+  #     sudo yum -HE install https://centos7.iuscommunity.org/ius-release.rpm
+  #     sudo yum -HE install python36u python36u-devel python36u-pip
+  #   else
+  #     echo "Unknown System"
+  #     exit
+  #   fi
+  # elif [ ${isOSX} = 1 ]; then
+  #   brew install python3
+  # fi
 fi
-
-cd "${origin}/.exvim"
-
-echo -e "${GREEN}exvim[2/4] build vimrc${WHITE}"
-echo "let g:exvim_custom_path='~/.exvim/'
-source ~/.exvim/.vimrc" > ~/.vimrc
-
-echo -e "${GREEN}exvim[3/4] install vundle${WHITE}"
-bash install.sh
-
-echo -e "${GREEN}exvim[4/4] update plugins${WHITE}"
-vim +PlugInstall +qall
-echo -e "${RED}exvim Installed${WHITE}"
 
 # Software installation
 install_w_config()
 {
-  local install_type target url dirname newop conf
+  local install_type cmd target url dirname newop conf
+  newop="ls"
   while [[ ${1} ]];
   do
       case "${1}" in
           -type)
-            type=${2}
+            install_type=${2}
             shift
             ;;
+	  -cmd)
+            cmd=${2}
+	    shift
+	    ;;
           -target)
             target=${2}
             shift
@@ -86,10 +93,13 @@ install_w_config()
             shift
             ;;
           -newop)
-            newop=${2}
+            newop="$newop && ${2}"
             shift
             ;;
-          *) return 1 # illegal option
+          *)
+            echo "illegal option"
+            echo $1
+            return 1 # illegal option
       esac
 
       if ! shift; then
@@ -101,19 +111,30 @@ install_w_config()
   # install in anyway
   echo -e "${RED}Install ${cmd}${WHITE}"
   cd ${source_path}
-  if [ -d ${dirname} ]; then
-    /bin/rm ${dirname} -rf
-  fi
 
-  if [ ${type} = 'tar' ]; then
+  if [ ${install_type} = 'tar' ]; then
+    if [ -x "$(command -v ${cmd})" ]; then
+      return 0
+    fi
     # download tar file
+    if [ -d ${dirname} ]; then
+      /bin/rm ${dirname} -rf
+    fi
     if [ ! -f ${target} ]; then
       wget ${url} -O ${target}
     fi
     tar xf ${target}
-  elif [ ${type} = 'git' ]; then
+
+  elif [ ${install_type} = 'git' ]; then
     # clone from git
-    git clone --recursive ${url} ${dirname}
+    if [ ! -d ${dirname} ]; then
+    	git clone --recursive ${url} ${dirname}
+    else
+	cd ${dirname} 
+	git checkout * 
+	git pull origin master
+        cd ..	
+    fi
   else
     echo "Unknown Install Type"
     return 1
@@ -135,21 +156,22 @@ install_w_config()
 }
 
 if [ ${isLinux} = 1 ]; then
+
   # install by root
-  if [ -x "$(command -v apt-get)" ]; then
-    sudo -HE apt-get install axel silversearcher-ag jq
-    sudo -HE apt-get install gawk ctags id-utils cscope graphviz tree tig
-    sudo -HE apt-get install libevent-dev libpng libpng-dev
-    sudo -HE apt-get install zsh
-  elif [ -x "$(command -v yum)" ]; then
-    sudo -HE yum install axel the_silver_searcher jq
-    sudo -HE yum install gawk ctags id-utils cscope graphviz tree tig
-    sudo -HE yum install libevent-devl libpng libpng-devel
-    sudo -HE yum install zsh
-  else
-    echo "Unknown System"
-    exit
-  fi
+  # if [ -x "$(command -v apt-get)" ]; then
+  #   sudo -HE apt-get install axel silversearcher-ag jq
+  #   sudo -HE apt-get install gawk ctags id-utils cscope graphviz tree tig
+  #   sudo -HE apt-get install libevent-dev libpng libpng-dev
+  #   sudo -HE apt-get install zsh
+  # elif [ -x "$(command -v yum)" ]; then
+  #   sudo -HE yum install axel the_silver_searcher jq
+  #   sudo -HE yum install gawk ctags id-utils cscope graphviz tree tig
+  #   sudo -HE yum install libevent-devl libpng libpng-devel
+  #   sudo -HE yum install zsh
+  # else
+  #   echo "Unknown System"
+  #   exit
+  # fi
 
   # install from source
   source_path=${origin}/local/source
@@ -183,13 +205,16 @@ if [ ${isLinux} = 1 ]; then
   # tmux
   install_w_config \
     -type git \
+    -cmd tmux \
     -url https://github.com/tmux/tmux \
     -dirname tmux \
-    -newop "git checkout 2.6"
+    -newop "git checkout 2.6" \
+    -newop "bash autogen.sh"
 
   # git
   install_w_config \
     -type git \
+    -cmd git \
     -url https://github.com/git/git \
     -dirname git \
     -newop "git checkout 2.6"
@@ -197,7 +222,7 @@ if [ ${isLinux} = 1 ]; then
   # vim
   install_w_config \
     -type git \
-    -url \
+    -url https://github.com/vim/vim \
     -dirname vim \
     -conf --enable-terminal \
     -conf --enable-python3interp=yes
@@ -319,5 +344,25 @@ if [ ${isOSX} = 1 ]; then
   # youcompleteme
   brew install python3 macvim
   echo "${RED}entering YouCompleteMe and run python3 install.py --clang-completer${WHITE}"
-
 fi
+
+# exvim
+if [ ! -d ".exvim" ]; then
+  echo -e "${GREEN}exvim[1/4] cloning repo${WHITE}"
+  git clone https://github.com/yunkaili/main .exvim
+fi
+
+cd "${origin}/.exvim"
+
+echo -e "${GREEN}exvim[2/4] build vimrc${WHITE}"
+echo "let g:exvim_custom_path='~/.exvim/'
+source ~/.exvim/.vimrc" > ~/.vimrc
+
+echo -e "${GREEN}exvim[3/4] install vundle${WHITE}"
+bash install.sh
+
+echo -e "${GREEN}exvim[4/4] update plugins${WHITE}"
+vim +PlugInstall +qall
+echo -e "${RED}exvim Installed${WHITE}"
+
+
