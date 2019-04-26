@@ -61,12 +61,12 @@ echo -e "${RED}exvim Installed${WHITE}"
 # Software installation
 install_w_config()
 {
-  local cmd target url dirname newop conf
+  local install_type target url dirname newop conf
   while [[ ${1} ]];
   do
       case "${1}" in
-          -cmd)
-            cmd=${2}
+          -type)
+            type=${2}
             shift
             ;;
           -target)
@@ -96,40 +96,42 @@ install_w_config()
         echo 'Missing parameter argument.' >&2
         return 1
       fi
-
   done
 
-  if [ ! -x "$(command -v ${cmd})" ]; then
+  # install in anyway
+  echo -e "${RED}Install ${cmd}${WHITE}"
+  cd ${source_path}
+  if [ -d ${dirname} ]; then
+    /bin/rm ${dirname} -rf
+  fi
 
-    echo -e "${RED}Install ${cmd}${WHITE}"
-
-    cd ${source_path}
-
+  if [ ${type} = 'tar' ]; then
+    # download tar file
     if [ ! -f ${target} ]; then
       wget ${url} -O ${target}
     fi
-
-    if [ -d ${dirname} ]; then
-      /bin/rm ${dirname} -rf
-    fi
-
     tar xf ${target}
-
-    cd ${dirname}
-
-    if [ -n "${newop}" ]; then
-      eval ${newop}
-    fi
-
-    if [ -z ${conf} ]; then
-      ./configure --prefix=${install_path}
-    else
-      ./configure ${conf} --prefix=${install_path}
-    fi
-
-    make -j && make install
-
+  elif [ ${type} = 'git' ]; then
+    # clone from git
+    git clone --recursive ${url} ${dirname}
+  else
+    echo "Unknown Install Type"
+    return 1
   fi
+
+  cd ${dirname}
+
+  if [ -n "${newop}" ]; then
+    eval ${newop}
+  fi
+  if [ -z ${conf} ]; then
+    ./configure --prefix=${install_path}
+  else
+    ./configure ${conf} --prefix=${install_path}
+  fi
+
+  make -j && make install
+
 }
 
 if [ ${isLinux} = 1 ]; then
@@ -137,11 +139,13 @@ if [ ${isLinux} = 1 ]; then
   if [ -x "$(command -v apt-get)" ]; then
     sudo -HE apt-get install axel silversearcher-ag jq
     sudo -HE apt-get install gawk ctags id-utils cscope graphviz tree tig
-    sudo -HE apt-get install libevent-dev zsh
+    sudo -HE apt-get install libevent-dev libpng libpng-dev
+    sudo -HE apt-get install zsh
   elif [ -x "$(command -v yum)" ]; then
     sudo -HE yum install axel the_silver_searcher jq
     sudo -HE yum install gawk ctags id-utils cscope graphviz tree tig
-    sudo -HE yum install libevent-devl zsh
+    sudo -HE yum install libevent-devl libpng libpng-devel
+    sudo -HE yum install zsh
   else
     echo "Unknown System"
     exit
@@ -162,7 +166,6 @@ if [ ${isLinux} = 1 ]; then
   if [ ! -d ${source_path} ]; then
     mkdir -p ${source_path}
   fi
-
   if [ ! -d ${source_path} ]; then
     echo -e "${RED}${source_path} does not exist${WHITE}"
     exit 1
@@ -171,24 +174,64 @@ if [ ${isLinux} = 1 ]; then
   # idutils
   # >= v4.5 has bugs
   install_w_config \
+    -type tar \
     -cmd gid \
     -target idutils.tar.gz \
     -url https://ftp.gnu.org/gnu/idutils/idutils-4.2.tar.gz \
     -dirname idutils-4.2
 
-  # TODO: upgrade command
-  # sudo yum install libevent-devel
-  # install_w_config \
-    # -cmd tmux \
-    # -target tmux.tar.gz \
-    # -url https://github.com/tmux/tmux/archive/2.8.tar.gz \
-    # -dirname tmux-2.8
+  # tmux
+  install_w_config \
+    -type git \
+    -url https://github.com/tmux/tmux \
+    -dirname tmux \
+    -newop "git checkout 2.6"
 
+  # git
+  install_w_config \
+    -type git \
+    -url https://github.com/git/git \
+    -dirname git \
+    -newop "git checkout 2.6"
+
+  # vim
+  install_w_config \
+    -type git \
+    -url \
+    -dirname vim \
+    -conf --enable-terminal \
+    -conf --enable-python3interp=yes
+
+  # x264
+  install_w_config \
+    -type git \
+    -url http://git.videolan.org/git/x264 \
+    -dirname x264 \
+    -newop PKG_CONFIG_PATH=${install_path}/lib/pkgconfig \
+    -conf --bindir="${install_path}/bin" \
+    -conf --enable-static \
+    -conf --enable-shared \
+    -conf --enable-pic
+
+  # ffmpeg
   # install_w_config \
-    # -cmd git \
-    # -target git.tar.gz \
-    # -url https://github.com/git/git/archive/v2.21.0-rc2.tar.gz \
-    # -dirname git
+    # -type git \
+    # -url \
+    # -dirname ffmpeg \
+    # -newop PKG_CONFIG_PATH=${install_path}/lib/pkgconfig \
+    # -conf --pkg-config-flags="--static" \
+    # -conf --extra-cflags="-I${install_path}/include" \
+    # -conf --extra-ldflags="-L${install_path}/local/lib" \
+    # -conf --extra-libs=-lpthread \
+    # -conf --extra-libs=-lm \
+    # -conf --bindir="${install_path}/bin" \
+    # -conf --enable-gpl \
+    # -conf --enable-libx264 \
+    # -conf --enable-nonfree \
+    # -conf --enable-avresample \
+    # -conf --enable-shared \
+    # -conf --enable-pic \
+    # -conf --tempprefix=./temp/
 
 elif [ ${isOSX} = 1 ]; then
 
