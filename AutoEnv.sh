@@ -2,7 +2,7 @@
 # File              : AutoEnv.sh
 # Author            : Yunkai Li <ykli@aibee.cn>
 # Date              : 25.03.2019
-# Last Modified Date: 25.03.2019
+# Last Modified Date: 26.04.2019
 # Last Modified By  : Yunkai Li <ykli@aibee.cn>
 
 RED='\e[1;31m'
@@ -15,8 +15,7 @@ abpath=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 # Install in the home directory in default
 # replace the default path if needed
-origin="/home/ykli"
-# origin = $HOME
+origin = $HOME
 
 # Check System
 case "$(uname -s)" in
@@ -35,20 +34,12 @@ else
   echo -e "${RED}Support Mac or Linux"
   exit 0
 fi
-
-if [ "$EUID" -ne 0 ]; then
-  isRoot=0
-else
-  isRoot=1
-fi
-
 echo -e "${GREEN}System Check Pass"
 
 # Auto env script
 cd ${origin}
 
 # exvim
-# TODO: debug
 if [ ! -d ".exvim" ]; then
   echo -e "${GREEN}exvim[1/4] cloning repo${WHITE}"
   git clone https://github.com/yunkaili/main .exvim
@@ -56,35 +47,18 @@ fi
 
 cd "${origin}/.exvim"
 
-
 echo -e "${GREEN}exvim[2/4] build vimrc${WHITE}"
 echo "let g:exvim_custom_path='~/.exvim/'
 source ~/.exvim/.vimrc" > ~/.vimrc
 
 echo -e "${GREEN}exvim[3/4] install vundle${WHITE}"
-bash unix/install.sh
+bash install.sh
 
 echo -e "${GREEN}exvim[4/4] update plugins${WHITE}"
-vim +PluginInstall +qall
+vim +PlugInstall +qall
 echo -e "${RED}exvim Installed${WHITE}"
 
-# brew
-if [ ${isOSX} = 1 ] && [ ! hash brew 2>/dev/null ]; then
-  echo -e "${GREEN}Install Brew${WHITE}"
-  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-  brew install zsh
-else
-  echo -e "${RED}No Brew Install${WHITE}"
-fi
-
-# System
-# axel - download tools
-# silversearcher-ag - better than grep
-# jq - json viewer
-# tig - git tree
-# TODO: add tree
-# tree - directory struct viewer
-
+# Software installation
 install_w_config()
 {
   local cmd target url dirname newop conf
@@ -159,199 +133,74 @@ install_w_config()
 }
 
 if [ ${isLinux} = 1 ]; then
-  if [ ${isRoot} = 1 ]; then
-
-    if [ -x "$(command -v apt-get)" ]; then
-      sudo -HE apt-get install axel silversearcher-ag jq
-      sudo -HE apt-get install gawk ctags id-utils cscope graphviz tree tig
-    elif [ -x "$(command -v yum)" ]; then
-      sudo -HE yum install axel the_silver_searcher jq
-      sudo -HE yum install gawk ctags id-utils cscope graphviz tree tig
-    else
-      echo "Unknown System"
-      exit
-    fi
-
-
+  # install by root
+  if [ -x "$(command -v apt-get)" ]; then
+    sudo -HE apt-get install axel silversearcher-ag jq
+    sudo -HE apt-get install gawk ctags id-utils cscope graphviz tree tig
+    sudo -HE apt-get install libevent-dev zsh
+  elif [ -x "$(command -v yum)" ]; then
+    sudo -HE yum install axel the_silver_searcher jq
+    sudo -HE yum install gawk ctags id-utils cscope graphviz tree tig
+    sudo -HE yum install libevent-devl zsh
   else
-
-    source_path=${origin}/local/source
-    install_path=${origin}/local
-    unset LD_LIBRARY_PATH C_INCLUDE_PATH PKG_CONFIG_PATH
-    export PATH=${origin}/local/bin:$PATH
-    export LD_LIBRARY_PATH=${origin}/local/lib:$LD_LIBRARY_PATH
-    export C_INCLUDE_PATH=${origin}/local/include:$C_INCLUDE_PATH
-    export PKG_CONFIG_PATH=${origin}/local/lib/pkgconfig:$PKG_CONFIG_PATH
-
-    echo -e "${YELLOW}install from source${WHITE}"
-    echo -e "${YELLOW}download source in ${source_path}${WHITE}"
-
-    if [ ! -d ${source_path} ]; then
-      mkdir -p ${source_path}
-    fi
-
-    if [ ! -d ${source_path} ]; then
-      echo -e "${RED}${source_path} does not exist${WHITE}"
-      exit 1
-    fi
-
-    # axel
-    install_w_config \
-      -cmd axel \
-      -target axel.tar.gz \
-      -url https://github.com/axel-download-accelerator/axel/releases/download/v2.16.1/axel-2.16.1.tar.gz \
-      -dirname axel-2.16.1 \
-      -conf --without-ssl
-    # Build-time dependencies:
-    #
-    # pkg-config
-    # gettext
-    # autopoint
-    # Optional dependencies:
-    #
-    # libssl (OpenSSL, LibreSSL or compatible) -- for SSL/TLS support.
-    # https://github.com/openssl/openssl/archive/OpenSSL_1_1_1a.tar.gz
-
-    # ag
-    # cd ${source_path}
-    # dependencies
-    # pkg-config --libs liblzma
-    if [ $(pkg-config --exists "liblzma"; echo $?) = 1 ]; then
-      if [ ! -f "xz-5.2.4.tar.gz" ]; then
-        wget https://downloads.sourceforge.net/project/lzmautils/xz-5.2.4.tar.gz
-      fi
-      if [ ! -d "xz-5.2.4" ]; then
-        tar xf "xz-5.2.4.tar.gz"
-      fi
-      cd xz-5.2.4 && ./configure --prefix=${install_path} && make -j && make install
-    fi
-
-    if [ $(pkg-config --exists "libpcre"; echo $?) = 1 ]; then
-      if [ ! -f "pcre-8.35.tar.gz" ]; then
-        wget https://sourceforge.net/projects/pcre/files/pcre/8.35/pcre-8.35.tar.gz
-      fi
-      if [ ! -d "pcre-8.35" ]; then
-        tar xf "pcre-8.35.tar.gz"
-      fi
-      cd pcre-8.35 && ./configure --prefix=${install_path} && make -j && make install
-    fi
-
-    install_w_config \
-      -cmd ag \
-      -target ag.tar.gz \
-      -url https://geoff.greer.fm/ag/releases/the_silver_searcher-2.2.0.tar.gz\
-      -dirname the_silver_searcher-2.2.0
-    # Install dependencies (Automake, pkg-config, PCRE, LZMA):
-    # LZMA
-    # https://downloads.sourceforge.net/project/lzmautils/xz-5.2.4.tar.gz
-
-    # jq
-    install_w_config \
-      -cmd jq \
-      -target jq.tar.gz \
-      -url https://github.com/stedolan/jq/releases/download/jq-1.6/jq-1.6.tar.gz \
-      -dirname jq-1.6 \
-      -newop "autoreconf -i" \
-      -conf --with-oniguruma=builtin \
-      -conf --disable-maintainer-mode
-
-    # gawk
-    install_w_config \
-      -cmd gawk \
-      -target gawk.tar.gz \
-      -url http://ftp.gnu.org/gnu/gawk/gawk-4.2.1.tar.gz \
-      -dirname gawk-4.2.1 \
-      -newop "unset C_INCLUDE_PATH"
-    export C_INCLUDE_PATH=${origin}/local/include:$C_INCLUDE_PATH
-
-    # ctags
-    install_w_config \
-      -cmd ctags \
-      -target ctags.tar.gz \
-      -url http://prdownloads.sourceforge.net/ctags/ctags-5.8.tar.gz \
-      -dirname ctags-5.8
-
-    # cscope
-    # dependencies
-    install_w_config \
-      -cmd ncurses6-config \
-      -target ncurses.tar.gz \
-      -url https://ftp.gnu.org/pub/gnu/ncurses/ncurses-6.1.tar.gz \
-      -dirname ncurses-6.1 \
-      -conf --with-shared \
-      -conf --enable-pc-files \
-      -conf --with-install-prefix
-    export C_INCLUDE_PATH=${origin}/local/include/ncurses:$C_INCLUDE_PATH
-
-    install_w_config \
-      -cmd cscope \
-      -target cscope.tar.gz \
-      -url https://downloads.sourceforge.net/project/cscope/cscope/v15.9/cscope-15.9.tar.gz \
-      -dirname cscope-15.9 \
-      -conf --with-ncurses=${install_path}
-
-    # idutils
-    # >= v4.5 has bugs
-    install_w_config \
-      -cmd gid \
-      -target idutils.tar.gz \
-      -url https://ftp.gnu.org/gnu/idutils/idutils-4.2.tar.gz \
-      -dirname idutils-4.2
-
-    # sed
-    install_w_config \
-      -cmd sed \
-      -target sed.tar.gz \
-      -url http://ftp.gnu.org/gnu/sed/sed-4.2.1.tar.gz \
-      -dirname sed-4.2.1
-
-    # tree
-    # install_w_config \
-      # -cmd tree \
-      # -target tree.tgz \
-      # -url http://mama.indstate.edu/users/ice/tree/src/tree-1.8.0.tgz \
-      # -dirname tree-1.8.0
-
-    echo -e "${REA}You may need to install ${YELLOW}tree ${RED}manually"
-    echo -e "${GREEN}http://mama.indstate.edu/users/ice/tree/src/tree-1.8.0.tgz${WHITE}"
-
-    # tig
-    # dependencies
-    cd ${source_path}
-    if [ ! -f "libiconv-1.15.tar.gz" ]; then
-      wget https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz
-    fi
-    if [ ! -d "libiconv-1.15" ]; then
-      tar xf "libiconv-1.15.tar.gz"
-    fi
-    cd libiconv-1.15 && ./configure --prefix=${install_path} && make -j && make install
-
-    install_w_config \
-      -cmd tig \
-      -target tig.tar.gz \
-      -url https://github.com/jonas/tig/releases/download/tig-2.4.1/tig-2.4.1.tar.gz \
-      -dirname tig-2.4.1 \
-      -conf "LDFLAGS=-L${origin}/local/lib"
-
-    # TODO: upgrade command
-    # sudo yum install libevent-devel
-    # install_w_config \
-      # -cmd tmux \
-      # -target tmux.tar.gz \
-      # -url https://github.com/tmux/tmux/archive/2.8.tar.gz \
-      # -dirname tmux-2.8
-
-    # install_w_config \
-      # -cmd git \
-      # -target git.tar.gz \
-      # -url https://github.com/git/git/archive/v2.21.0-rc2.tar.gz \
-      # -dirname git
-
+    echo "Unknown System"
+    exit
   fi
-elif [ ${isOSX} = 1 ]; then
-  brew install axel the_silver_searcher jq
 
-  #brew install macvim --with-cscope --with-lua --HEAD
+  # install from source
+  source_path=${origin}/local/source
+  install_path=${origin}/local
+  unset LD_LIBRARY_PATH C_INCLUDE_PATH PKG_CONFIG_PATH
+  export PATH=${origin}/local/bin:$PATH
+  export LD_LIBRARY_PATH=${origin}/local/lib:$LD_LIBRARY_PATH
+  export C_INCLUDE_PATH=${origin}/local/include:$C_INCLUDE_PATH
+  export PKG_CONFIG_PATH=${origin}/local/lib/pkgconfig:$PKG_CONFIG_PATH
+
+  echo -e "${YELLOW}install from source${WHITE}"
+  echo -e "${YELLOW}download source in ${source_path}${WHITE}"
+
+  if [ ! -d ${source_path} ]; then
+    mkdir -p ${source_path}
+  fi
+
+  if [ ! -d ${source_path} ]; then
+    echo -e "${RED}${source_path} does not exist${WHITE}"
+    exit 1
+  fi
+
+  # idutils
+  # >= v4.5 has bugs
+  install_w_config \
+    -cmd gid \
+    -target idutils.tar.gz \
+    -url https://ftp.gnu.org/gnu/idutils/idutils-4.2.tar.gz \
+    -dirname idutils-4.2
+
+  # TODO: upgrade command
+  # sudo yum install libevent-devel
+  # install_w_config \
+    # -cmd tmux \
+    # -target tmux.tar.gz \
+    # -url https://github.com/tmux/tmux/archive/2.8.tar.gz \
+    # -dirname tmux-2.8
+
+  # install_w_config \
+    # -cmd git \
+    # -target git.tar.gz \
+    # -url https://github.com/git/git/archive/v2.21.0-rc2.tar.gz \
+    # -dirname git
+
+elif [ ${isOSX} = 1 ]; then
+
+  # brew
+  if [ ${isOSX} = 1 ] && [ ! hash brew 2>/dev/null ]; then
+    echo -e "${GREEN}Install Brew${WHITE}"
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    brew install zsh
+  else
+    echo -e "${RED}No Brew Install${WHITE}"
+  fi
+  brew install axel the_silver_searcher jq
   brew install gawk ctags cscope idutils graphviz tree tig
 fi
 
@@ -359,6 +208,7 @@ fi
 cd ${origin}
 
 if [ ! -d "${origin}/.oh-my-zsh" ]; then
+
   # you may reinstall zsh
   sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 
@@ -384,11 +234,6 @@ fi
 # zsh-autosuggestions
 if [ ! -d "${origin}/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
   git clone https://github.com/zsh-users/zsh-autosuggestions "${origin}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
-fi
-
-# powerlevel9k
-if [ ! -d "${origin}/.oh-my-zsh/custom/themes/powerlevel9k" ]; then
-  git clone https://github.com/bhilburn/powerlevel9k.git ~/.oh-my-zsh/custom/themes/powerlevel9k
 fi
 
 # .tmux
@@ -427,18 +272,9 @@ fi
 if [ ${isOSX} = 1 ]; then
   brew tap caskroom/cask
   brew cask install iterm2 astrill cleanmymac iina keka baidunetdisk dash foxitreader mendeley transmit
-fi
 
-# install colorls
-if [ ${isOSX} = 1 ]; then
-  brew install ruby
-  sudo gem install colorls
-  ( cd $ZSH_CUSTOM/plugins && git clone https://github.com/gretzky/auto-color-ls )
-fi
-
-# YouCompleteMe
-if [ ${isOSX} = 1 ]; then
+  # youcompleteme
   brew install python3 macvim
   echo "${RED}entering YouCompleteMe and run python3 install.py --clang-completer${WHITE}"
-fi
 
+fi

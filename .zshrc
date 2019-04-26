@@ -2,7 +2,7 @@
 # File              : .zshrc
 # Author            : Yunkai Li <ykli@aibee.cn>
 # Date              : 25.03.2019
-# Last Modified Date: 26.03.2019
+# Last Modified Date: 26.04.2019
 # Last Modified By  : Yunkai Li <ykli@aibee.cn>
 export TERM="xterm-256color"
 # If you come from bash you might have to change your $PATH.
@@ -62,24 +62,23 @@ export UPDATE_ZSH_DAYS=13
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(colored-man-pages
-         common-aliases
-         git
-         last-working-dir
-         tmux
-         thefuck
-         vi-mode
-         zsh-autosuggestions
-         zsh-completion
-)
+#
+plugins=(colored-man-pages colorize common-aliases git last-working-dir tmux vi-mode)
 # history
 
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
-export LD_LIBRARY_PATH=$HOME/local/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$HOME/local/lib:$HOME/.local/lib:/usr/lib:/usr/local/lib:$LD_LIBRARY_PATH
 export C_INCLUDE_PATH=$HOME/local/include:$C_INCLUDE_PATH
 export PKG_CONFIG_PATH=$HOME/local/lib/pkgconfig:$PKG_CONFIG_PATH
+
+# cuda
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/:/usr/local/lib64/:$LD_LIBRARY_PATH
+
+# caffe
+export PATH=$HOME/program/caffe/build/tools/:$PATH
+export PYTHONPATH=$HOME/program/caffe/python/:$PYTHONPATH
 
 # Pytorch
 export OMP_NUM_THREADS=1
@@ -110,8 +109,10 @@ export SSH_KEY_PATH="~/.ssh/rsa_id"
 alias du='du -h'
 alias df='df -h'
 alias ag='ag --noaffinity'
+alias axel='axel -a'
+alias tree='tree -C'
+alias ncdu='ncdu --color dark'
 alias ipython='python3 -m IPython'
-eval $(thefuck --alias)
 
 # trash
 mkdir -p ~/.trash
@@ -122,12 +123,12 @@ alias ur=undelfile
 
 undelfile()
 {
-  mv -i  ~/.trash/$@ ./
+  mv -i  /ssd/ykli/.trash/$@ ./
 }
 
 trash()
 {
-  mv $@ ~/.trash/
+  mv $@ /ssd/ykli/.trash/
 }
 
 # Update environments every time tmux restarts
