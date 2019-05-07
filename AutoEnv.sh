@@ -212,12 +212,12 @@ if [ ${isLinux} = 1 ]; then
     -newop "bash autogen.sh"
 
   # git
-  install_w_config \
-    -type git \
-    -cmd git \
-    -url https://github.com/git/git \
-    -dirname git \
-    -newop "git checkout 2.6"
+  # install_w_config \
+  #  -type git \
+  #  -cmd git \
+  #  -url https://github.com/git/git \
+  #  -dirname git \
+  #  -newop "git checkout 2.6"
 
   # vim
   install_w_config \
