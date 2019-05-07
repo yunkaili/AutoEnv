@@ -46,7 +46,7 @@ if [ ! -x "$(command -v python3)" ]; then
   # if [ ${isLinux} = 1 ]; then
   #   # install by root
   #   if [ -x "$(command -v apt-get)" ]; then
-  #     sudo -HE apt-get install python3 python3-pip 
+  #     sudo -HE apt-get install python3 python3-pip
   #   elif [ -x "$(command -v yum)" ]; then
   #     sudo yum -HE install yum-utils
   #     sudo yum -HE install https://centos7.iuscommunity.org/ius-release.rpm
@@ -129,11 +129,11 @@ install_w_config()
     # clone from git
     if [ ! -d ${dirname} ]; then
     	git clone --recursive ${url} ${dirname}
-    else
-	cd ${dirname} 
-	git checkout * 
-	git pull origin master
-        cd ..	
+    # else
+	# cd ${dirname}
+	# git checkout *
+	# git pull origin master
+  # cd ..
     fi
   else
     echo "Unknown Install Type"
