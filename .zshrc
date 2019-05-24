@@ -2,8 +2,9 @@
 # File              : .zshrc
 # Author            : Yunkai Li <ykli@aibee.cn>
 # Date              : 25.03.2019
-# Last Modified Date: 26.04.2019
+# Last Modified Date: 24.05.2019
 # Last Modified By  : Yunkai Li <ykli@aibee.cn>
+
 export TERM="xterm-256color"
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/local/bin:$HOME/.local/bin/:/usr/local/bin:$PATH
@@ -84,8 +85,8 @@ export PYTHONPATH=$HOME/program/caffe/python/:$PYTHONPATH
 export OMP_NUM_THREADS=1
 
 # You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-# export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
 
 # Preferred editor for local and remote sessions
 if [[ -n $SSH_CONNECTION ]]; then
