@@ -317,24 +317,24 @@ echo -e "${YELLOW}eval \`ssh-agent -s\`"
 echo -e "ssh-add .ssh/id_rsa${WHITE}"
 
 # awesome terminal fonts install
-# if [ ! -d "awesome-terminal-fonts" ]; then
-  # git clone https://github.com/gabrielelana/awesome-terminal-fonts
-  # cd "awesome-terminal-fonts"
-  # git checkout pathcing-strategy
-  # ./droid.sh
-# fi
-
-if [ ! -d "nerd-fonts" ]; then
-  if [ ${isLinux} = 1 ]; then
-    git clone https://github.com/ryanoasis/nerd-fonts.git
-    cd nerd-fonts
-    ./install.sh
-  elif [ ${isOSX} = 1 ]; then
-    brew tap caskroom/fonts
-    brew cask install caskroom/fonts/font-awesome-terminal-fonts
-    brew cask install caskroom/fonts/font-hack-nerd-font
-  fi
+if [ ! -d "awesome-terminal-fonts" ]; then
+  git clone https://github.com/gabrielelana/awesome-terminal-fonts
+  cd "awesome-terminal-fonts"
+  git checkout pathcing-strategy
+  ./droid.sh
 fi
+
+# if [ ! -d "nerd-fonts" ]; then
+  # if [ ${isLinux} = 1 ]; then
+    # git clone https://github.com/ryanoasis/nerd-fonts.git
+    # cd nerd-fonts
+    # ./install.sh
+  # elif [ ${isOSX} = 1 ]; then
+    # brew tap caskroom/fonts
+    # brew cask install caskroom/fonts/font-awesome-terminal-fonts
+    # brew cask install caskroom/fonts/font-hack-nerd-font
+  # fi
+# fi
 
 # common apps
 if [ ${isOSX} = 1 ]; then
