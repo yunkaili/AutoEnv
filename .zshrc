@@ -110,9 +110,12 @@ export SSH_KEY_PATH="~/.ssh/rsa_id"
 alias du='du -h'
 alias df='df -h'
 alias ag='ag --noaffinity'
+alias ssh='ssh -CAXY'
+alias rsync='rsync -avrP'
 alias axel='axel -a'
 alias tree='tree -C'
 alias ncdu='ncdu --color dark'
+
 alias ipython='python3 -m IPython'
 
 # trash
@@ -124,12 +127,12 @@ alias ur=undelfile
 
 undelfile()
 {
-  mv -i  /ssd/ykli/.trash/$@ ./
+  mv -i  $HOME/.trash/$@ ./
 }
 
 trash()
 {
-  mv $@ /ssd/ykli/.trash/
+  mv $@ $HOME/.trash/
 }
 
 # Update environments every time tmux restarts
