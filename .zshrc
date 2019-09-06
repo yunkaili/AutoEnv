@@ -87,13 +87,15 @@ export OMP_NUM_THREADS=1
 # You may need to manually set your language environment
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
+export LC_CTYPE=en_US.UTF-8
 
 # Preferred editor for local and remote sessions
-if [[ -n $SSH_CONNECTION ]]; then
-  export EDITOR='vim'
-else
-  export EDITOR='mvim'
-fi
+export EDITOR='vim'
+# if [[ -n $SSH_CONNECTION ]]; then
+  # export EDITOR='vim'
+# else
+  # export EDITOR='mvim'
+# fi
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
@@ -115,7 +117,6 @@ alias rsync='rsync -avrP'
 alias axel='axel -a'
 alias tree='tree -C'
 alias ncdu='ncdu --color dark'
-
 alias ipython='python3 -m IPython'
 
 # trash
@@ -134,6 +135,19 @@ trash()
 {
   mv $@ $HOME/.trash/
 }
+
+# pip zsh completion start
+function _pip_completion {
+  local words cword
+  read -Ac words
+  read -cn cword
+  reply=( $( COMP_WORDS="$words[*]" \
+    COMP_CWORD=$(( cword-1 )) \
+    PIP_AUTO_COMPLETE=1 $words[1] ) )
+  }
+compctl -K _pip_completion pip3
+# pip zsh completion end
+
 
 # Update environments every time tmux restarts
 # if [ -n "$TMUX" ]; then
