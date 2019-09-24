@@ -41,13 +41,15 @@ echo -e "${GREEN}System Check Pass${WHITE}"
 cd ${origin}
 
 # If Mac, brew check
-if [ ${isOSX} = 1 && ! hash brew 2>/dev/null ]; then
-  echo -e "${GREEN}Install Brew${WHITE}"
-  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-  brew install zsh
-else
-  echo -e "${RED}No Brew Install${WHITE}"
-  exit 0
+if [ ${isOSX} = 1 ] && [ ! hash brew 2>/dev/null ]; then
+  {
+    echo -e "${GREEN}Install Brew${WHITE}"
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    brew install zsh
+  } || {
+    echo -e "${RED}No Brew Install${WHITE}"
+    exit 0
+  }
 fi
 
 # If Linux, CentOS and Ubuntu check
@@ -78,6 +80,7 @@ if [ ! -x "$(command -v python3)" ]; then
     brew install python3
   fi
 fi
+echo "${GREEN}Python3 Check Pass${WHITE}"
 
 # ZSH ENV Check
 if [ ! -x "$(command -v zsh)" ]; then
@@ -92,7 +95,7 @@ if [ ! -x "$(command -v zsh)" ]; then
     brew install zsh
   fi
 fi
-
+echo "${GREEN}ZSH Check Pass${WHITE}"
 
 # Software installation
 
@@ -108,10 +111,10 @@ install_w_config()
             install_type=${2}
             shift
             ;;
-	  -cmd)
+          -cmd)
             cmd=${2}
-	    shift
-	    ;;
+            shift
+            ;;
           -target)
             target=${2}
             shift
@@ -164,12 +167,12 @@ install_w_config()
   elif [ ${install_type} = 'git' ]; then
     # clone from git
     if [ ! -d ${dirname} ]; then
-    	git clone --recursive ${url} ${dirname}
+    git clone --recursive ${url} ${dirname}
     # else
-	# cd ${dirname}
-	# git checkout *
-	# git pull origin master
-  # cd ..
+    # cd ${dirname}
+    # git checkout *
+    # git pull origin master
+    # cd ..
     fi
   else
     echo "Unknown Install Type"
@@ -195,15 +198,13 @@ if [ ${isLinux} = 1 ]; then
 
   # install by root
   # if [ -x "$(command -v apt-get)" ]; then
-  #   sudo -HE apt-get install axel silversearcher-ag jq
+  #   sudo -HE apt-get install axel silversearcher-ag jq vim git tmux
   #   sudo -HE apt-get install gawk ctags id-utils cscope graphviz tree tig
   #   sudo -HE apt-get install libevent-dev libpng libpng-dev
-  #   sudo -HE apt-get install zsh
   # elif [ -x "$(command -v yum)" ]; then
-  #   sudo -HE yum install axel the_silver_searcher jq
+  #   sudo -HE yum install axel the_silver_searcher jq vim git tmux
   #   sudo -HE yum install gawk ctags id-utils cscope graphviz tree tig
   #   sudo -HE yum install libevent-devl libpng libpng-devel
-  #   sudo -HE yum install zsh
   # else
   #   echo "Unknown System"
   #   exit
