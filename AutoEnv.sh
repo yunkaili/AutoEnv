@@ -198,11 +198,11 @@ if [ ${isLinux} = 1 ]; then
 
   # install by root
   # if [ -x "$(command -v apt-get)" ]; then
-  #   sudo -HE apt-get install axel silversearcher-ag jq vim git tmux
+  #   sudo -HE apt-get install axel silversearcher-ag jq vim git tmux htop
   #   sudo -HE apt-get install gawk ctags id-utils cscope graphviz tree tig
   #   sudo -HE apt-get install libevent-dev libpng libpng-dev
   # elif [ -x "$(command -v yum)" ]; then
-  #   sudo -HE yum install axel the_silver_searcher jq vim git tmux
+  #   sudo -HE yum install axel the_silver_searcher jq vim git tmux htop
   #   sudo -HE yum install gawk ctags id-utils cscope graphviz tree tig
   #   sudo -HE yum install libevent-devl libpng libpng-devel
   # else
@@ -298,7 +298,7 @@ if [ ${isLinux} = 1 ]; then
 elif [ ${isOSX} = 1 ]; then
 
   # common utils
-  brew install axel the_silver_searcher jq
+  brew install axel the_silver_searcher jq htop tmux ffmpge
   brew install gawk ctags cscope idutils graphviz tree tig
 
   # common mac apps
