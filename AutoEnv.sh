@@ -34,33 +34,69 @@ else
   echo -e "${RED}Support Mac or Linux"
   exit 0
 fi
+
 echo -e "${GREEN}System Check Pass${WHITE}"
 
 # Auto env script
 cd ${origin}
 
+# If Mac, brew check
+if [ ${isOSX} = 1 && ! hash brew 2>/dev/null ]; then
+  echo -e "${GREEN}Install Brew${WHITE}"
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  brew install zsh
+else
+  echo -e "${RED}No Brew Install${WHITE}"
+  exit 0
+fi
+
+# If Linux, CentOS and Ubuntu check
+if [ ${isLinux} = 1 ]; then
+  if [ -x "$(command -v apt-get)" ]; then
+    echo "Linux Ubuntu"
+  elif [ -x "$(command -v yum)" ]; then
+    echo "Linux CentOS"
+  else
+    echo "Support CentOS and Ubuntu"
+    exit
+  fi
+fi
+
 # Python ENV Check
 if [ ! -x "$(command -v python3)" ]; then
   echo "install python3 first"
-  exit
-  # if [ ${isLinux} = 1 ]; then
-  #   # install by root
-  #   if [ -x "$(command -v apt-get)" ]; then
-  #     sudo -HE apt-get install python3 python3-pip
-  #   elif [ -x "$(command -v yum)" ]; then
-  #     sudo yum -HE install yum-utils
-  #     sudo yum -HE install https://centos7.iuscommunity.org/ius-release.rpm
-  #     sudo yum -HE install python36u python36u-devel python36u-pip
-  #   else
-  #     echo "Unknown System"
-  #     exit
-  #   fi
-  # elif [ ${isOSX} = 1 ]; then
-  #   brew install python3
-  # fi
+  if [ ${isLinux} = 1 ]; then
+    # install by root
+    if [ -x "$(command -v apt-get)" ]; then
+      sudo -HE apt-get install python3 python3-pip
+    elif [ -x "$(command -v yum)" ]; then
+      sudo yum -HE install yum-utils
+      sudo yum -HE install https://centos7.iuscommunity.org/ius-release.rpm
+      sudo yum -HE install python36u python36u-devel python36u-pip
+    fi
+  elif [ ${isOSX} = 1 ]; then
+    brew install python3
+  fi
 fi
 
+# ZSH ENV Check
+if [ ! -x "$(command -v zsh)" ]; then
+  if [ ${isLinux} = 1 ]; then
+    # install by root
+    if [ -x "$(command -v apt-get)" ]; then
+      sudo -HE apt-get install zsh
+    elif [ -x "$(command -v yum)" ]; then
+      sudo yum -HE install zsh
+    fi
+  elif [ ${isOSX} = 1 ]; then
+    brew install zsh
+  fi
+fi
+
+
 # Software installation
+
+# For Linux,  Install to local
 install_w_config()
 {
   local install_type cmd target url dirname newop conf
@@ -193,6 +229,14 @@ if [ ${isLinux} = 1 ]; then
     exit 1
   fi
 
+  # git
+  install_w_config \
+   -type git \
+   -cmd git \
+   -url https://github.com/git/git \
+   -dirname git \
+   -newop "git checkout 2.6"
+
   # idutils
   # >= v4.5 has bugs
   install_w_config \
@@ -210,14 +254,6 @@ if [ ${isLinux} = 1 ]; then
     -dirname tmux \
     -newop "git checkout 2.6" \
     -newop "bash autogen.sh"
-
-  # git
-  # install_w_config \
-  #  -type git \
-  #  -cmd git \
-  #  -url https://github.com/git/git \
-  #  -dirname git \
-  #  -newop "git checkout 2.6"
 
   # vim
   install_w_config \
@@ -239,70 +275,67 @@ if [ ${isLinux} = 1 ]; then
     -conf --enable-pic
 
   # ffmpeg
-  # install_w_config \
-    # -type git \
-    # -url \
-    # -dirname ffmpeg \
-    # -newop PKG_CONFIG_PATH=${install_path}/lib/pkgconfig \
-    # -conf --pkg-config-flags="--static" \
-    # -conf --extra-cflags="-I${install_path}/include" \
-    # -conf --extra-ldflags="-L${install_path}/local/lib" \
-    # -conf --extra-libs=-lpthread \
-    # -conf --extra-libs=-lm \
-    # -conf --bindir="${install_path}/bin" \
-    # -conf --enable-gpl \
-    # -conf --enable-libx264 \
-    # -conf --enable-nonfree \
-    # -conf --enable-avresample \
-    # -conf --enable-shared \
-    # -conf --enable-pic \
-    # -conf --tempprefix=./temp/
+  install_w_config \
+    -type git \
+    -url \
+    -dirname ffmpeg \
+    -newop PKG_CONFIG_PATH=${install_path}/lib/pkgconfig \
+    -conf --pkg-config-flags="--static" \
+    -conf --extra-cflags="-I${install_path}/include" \
+    -conf --extra-ldflags="-L${install_path}/local/lib" \
+    -conf --extra-libs=-lpthread \
+    -conf --extra-libs=-lm \
+    -conf --bindir="${install_path}/bin" \
+    -conf --enable-gpl \
+    -conf --enable-libx264 \
+    -conf --enable-nonfree \
+    -conf --enable-avresample \
+    -conf --enable-shared \
+    -conf --enable-pic \
+    -conf --tempprefix=./temp/
 
 elif [ ${isOSX} = 1 ]; then
 
-  # brew
-  if [ ${isOSX} = 1 ] && [ ! hash brew 2>/dev/null ]; then
-    echo -e "${GREEN}Install Brew${WHITE}"
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-    brew install zsh
-  else
-    echo -e "${RED}No Brew Install${WHITE}"
-  fi
+  # common utils
   brew install axel the_silver_searcher jq
   brew install gawk ctags cscope idutils graphviz tree tig
+
+  # common mac apps
+  brew tap caskroom/cask
+  brew cask install iterm2 cleanmymac iina keka baidunetdisk dash foxitreader mendeley transmit
+
+  # For YouCompleteMe
+  brew install macvim
+  echo "${RED}entering YouCompleteMe and run python3 install.py --clang-completer${WHITE}"
 fi
 
-# zsh
+# ZSH Installation
 cd ${origin}
 
 if [ ! -d "${origin}/.oh-my-zsh" ]; then
-
   # you may reinstall zsh
   sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
-
   # copy defalut zsh config
   cp -f "${abpath}/.zshrc" ${origin}
-
   # change default shell to zsh
   if [ ${isRoot} = 1 ]; then
     sudo usermod -s /bin/zsh $(whoami)
   else
     chsh -s /bin/zsh
   fi
-
   echo -e "${RED}To make default shell zsh, You need to re-login"
   echo -e "sudo usermod -s /bin/zsh \$\(whoami\)"
   echo -e "chsh -s /bin/zsh${WHITE}"
-
 else
   echo -e "${RED}.oh-my-zsh is found in ${origin}${WHITE}"
 fi
 
 # oh-my-zsh plugins
 # zsh-autosuggestions
-if [ ! -d "${origin}/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
-  git clone https://github.com/zsh-users/zsh-autosuggestions "${origin}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
-fi
+# cause bugs when using
+# if [ ! -d "${origin}/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
+  # git clone https://github.com/zsh-users/zsh-autosuggestions "${origin}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+# fi
 
 # .tmux
 if [ ! -d "${origin}/.tmux" ]; then
@@ -324,6 +357,7 @@ if [ ! -d "awesome-terminal-fonts" ]; then
   ./droid.sh
 fi
 
+# Deprecated nerd-fonts
 # if [ ! -d "nerd-fonts" ]; then
   # if [ ${isLinux} = 1 ]; then
     # git clone https://github.com/ryanoasis/nerd-fonts.git
@@ -335,16 +369,6 @@ fi
     # brew cask install caskroom/fonts/font-hack-nerd-font
   # fi
 # fi
-
-# common apps
-if [ ${isOSX} = 1 ]; then
-  brew tap caskroom/cask
-  brew cask install iterm2 astrill cleanmymac iina keka baidunetdisk dash foxitreader mendeley transmit
-
-  # youcompleteme
-  brew install python3 macvim
-  echo "${RED}entering YouCompleteMe and run python3 install.py --clang-completer${WHITE}"
-fi
 
 # exvim
 if [ ! -d ".exvim" ]; then
@@ -364,5 +388,3 @@ bash install.sh
 echo -e "${GREEN}exvim[4/4] update plugins${WHITE}"
 vim +PlugInstall +qall
 echo -e "${RED}exvim Installed${WHITE}"
-
-
