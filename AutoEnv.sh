@@ -56,8 +56,10 @@ fi
 if [ ${isLinux} = 1 ]; then
   if [ -x "$(command -v apt-get)" ]; then
     echo "Linux Ubuntu"
+    linux_install="sudo -HE apt-get install"
   elif [ -x "$(command -v yum)" ]; then
     echo "Linux CentOS"
+    linux_install="sudo -HE yum install"
   else
     echo "Support CentOS and Ubuntu"
     exit
@@ -70,11 +72,11 @@ if [ ! -x "$(command -v python3)" ]; then
   if [ ${isLinux} = 1 ]; then
     # install by root
     if [ -x "$(command -v apt-get)" ]; then
-      sudo -HE apt-get install python3 python3-pip
+      linux_install install python3 python3-pip
     elif [ -x "$(command -v yum)" ]; then
-      sudo yum -HE install yum-utils
-      sudo yum -HE install https://centos7.iuscommunity.org/ius-release.rpm
-      sudo yum -HE install python36u python36u-devel python36u-pip
+      linux_install yum-utils
+      linux_install https://centos7.iuscommunity.org/ius-release.rpm
+      linux_install python36u python36u-devel python36u-pip
     fi
   elif [ ${isOSX} = 1 ]; then
     brew install python3
@@ -85,12 +87,7 @@ echo "${GREEN}Python3 Check Pass${WHITE}"
 # ZSH ENV Check
 if [ ! -x "$(command -v zsh)" ]; then
   if [ ${isLinux} = 1 ]; then
-    # install by root
-    if [ -x "$(command -v apt-get)" ]; then
-      sudo -HE apt-get install zsh
-    elif [ -x "$(command -v yum)" ]; then
-      sudo yum -HE install zsh
-    fi
+    linux_install zsh
   elif [ ${isOSX} = 1 ]; then
     brew install zsh
   fi
@@ -191,24 +188,15 @@ install_w_config()
   fi
 
   make -j && make install
-
 }
 
 if [ ${isLinux} = 1 ]; then
 
   # install by root
-  # if [ -x "$(command -v apt-get)" ]; then
-  #   sudo -HE apt-get install axel silversearcher-ag jq vim git tmux htop
-  #   sudo -HE apt-get install gawk ctags id-utils cscope graphviz tree tig
-  #   sudo -HE apt-get install libevent-dev libpng libpng-dev
-  # elif [ -x "$(command -v yum)" ]; then
-  #   sudo -HE yum install axel the_silver_searcher jq vim git tmux htop
-  #   sudo -HE yum install gawk ctags id-utils cscope graphviz tree tig
-  #   sudo -HE yum install libevent-devl libpng libpng-devel
-  # else
-  #   echo "Unknown System"
-  #   exit
-  # fi
+  # linux_install axel silversearcher-ag jq
+  # linux_install gawk ctags id-utils cscope graphviz tree tig
+  # linux_install libevent-dev libpng libpng-dev
+  # linux_install vim htop tmux ffmpge wget curl ssh
 
   # install from source
   source_path=${origin}/local/source
@@ -298,8 +286,9 @@ if [ ${isLinux} = 1 ]; then
 elif [ ${isOSX} = 1 ]; then
 
   # common utils
-  brew install axel the_silver_searcher jq htop tmux ffmpge
+  brew install axel the_silver_searcher jq
   brew install gawk ctags cscope idutils graphviz tree tig
+  brew install vim htop tmux ffmpge wget curl ssh
 
   # common mac apps
   brew tap caskroom/cask
