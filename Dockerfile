@@ -13,4 +13,7 @@ RUN apt-get install -y --no-install-recommends libevent-dev libncurses5-dev libn
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends libssl-dev
 
-RUN git clone https://github.com/yunkaili/AutoEnv
+# RUN git clone https://github.com/yunkaili/AutoEnv
+
+RUN sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+CMD zsh
