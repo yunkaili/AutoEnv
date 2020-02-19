@@ -235,6 +235,29 @@ if [ ${isLinux} = 1 ]; then
     -url https://ftp.gnu.org/gnu/idutils/idutils-4.2.tar.gz \
     -dirname idutils-4.2
 
+  # for tmux
+  # help2man
+  install_w_config \
+    -type tar \
+    -cmd help2man \
+    -target help2man.tar.xz \
+    -url https://ftp.gnu.org/gnu/help2man/help2man-1.47.12.tar.xz \
+    -dir help2man-1.47.12
+
+  # autoconf
+  install_w_config \
+    -type tar \
+    -url https://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.xz \
+    -dirname autoconf-2.69
+
+  # libevent
+  install_w_config \
+    -type git \
+    -url https://github.com/libevent/libevent \
+    -dirname libevent \
+    -newop "git checkout release-2.1.8-stable" \
+    -newop "bash autogen.sh"
+
   # tmux
   install_w_config \
     -type git \
