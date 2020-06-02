@@ -2,16 +2,16 @@
 # File              : .zshrc
 # Author            : Yunkai Li <ykli@aibee.cn>
 # Date              : 25.03.2019
-# Last Modified Date: 24.05.2019
-# Last Modified By  : Yunkai Li <ykli@aibee.cn>
+# Last Modified Date: 02.06.2020
+# Last Modified By  : Yunkai Li <yunkai.li@hotmail.com>
 
 export TERM="xterm-256color"
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/local/bin:$HOME/.local/bin/:/usr/local/bin:$PATH
 
 # prevent ls color
-alias ls="ls --color=always"
-export LS_COLORS="di=34:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
+# alias ls="ls --color=always"
+# export LS_COLORS="di=34:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
 
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
@@ -19,7 +19,8 @@ export ZSH=$HOME/.oh-my-zsh
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="bira"
+# ZSH_THEME="bira"
+ZSH_THEME="spaceship"
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -64,10 +65,25 @@ export UPDATE_ZSH_DAYS=13
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 #
-plugins=(colored-man-pages colorize common-aliases git last-working-dir tmux vi-mode)
+plugins=(
+        colored-man-pages
+        colorize
+        common-aliases
+        fzf
+        git
+        last-working-dir
+        tmux
+        vi-mode
+        zsh-completions
+        )
 # history
+# autoload -U compinit && compinit
 
 source $ZSH/oh-my-zsh.sh
+
+SPACESHIP_DIR_TRUNC='0'
+SPACESHIP_DIR_TRUNC_REPO=False
+SPACESHIP_VI_MODE_SHOW=false
 
 # User configuration
 export LD_LIBRARY_PATH=$HOME/local/lib:$HOME/.local/lib:/usr/lib:/usr/local/lib:$LD_LIBRARY_PATH
@@ -75,11 +91,11 @@ export C_INCLUDE_PATH=$HOME/local/include:$C_INCLUDE_PATH
 export PKG_CONFIG_PATH=$HOME/local/lib/pkgconfig:$PKG_CONFIG_PATH
 
 # cuda
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/:/usr/local/lib64/:$LD_LIBRARY_PATH
+# export LD_LIBRARY_PATH=/usr/local/cuda/lib64/:/usr/local/lib64/:$LD_LIBRARY_PATH
 
 # caffe
-export PATH=$HOME/program/caffe/build/tools/:$PATH
-export PYTHONPATH=$HOME/program/caffe/python/:$PYTHONPATH
+# export PATH=$HOME/program/caffe/build/tools/:$PATH
+# export PYTHONPATH=$HOME/program/caffe/python/:$PYTHONPATH
 
 # Pytorch
 export OMP_NUM_THREADS=1
@@ -162,3 +178,10 @@ compctl -K _pip_completion pip3
     # refresh
 # }
 
+# use navi as shell widget
+# export PATH=$PATH:"$ZSH_CUSTOM/plugins/navi"
+source "$(navi widget zsh)"
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# iterm2
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"

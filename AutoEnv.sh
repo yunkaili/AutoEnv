@@ -2,8 +2,8 @@
 # File              : AutoEnv.sh
 # Author            : Yunkai Li <ykli@aibee.cn>
 # Date              : 25.03.2019
-# Last Modified Date: 26.04.2019
-# Last Modified By  : Yunkai Li <ykli@aibee.cn>
+# Last Modified Date: 02.06.2020
+# Last Modified By  : Yunkai Li <yunkai.li@hotmail.com>
 
 RED='\e[1;31m'
 GREEN='\e[1;32m'
@@ -193,10 +193,11 @@ install_w_config()
 if [ ${isLinux} = 1 ]; then
 
   # install by root
-  # linux_install axel silversearcher-ag jq
-  # linux_install gawk ctags id-utils cscope graphviz tree tig
-  # linux_install libevent-dev libpng libpng-dev
-  # linux_install vim htop tmux ffmpge wget curl ssh
+  linux_install axel silversearcher-ag jq
+  linux_install gawk ctags id-utils cscope graphviz tree tig
+  linux_install libevent-dev libpng libpng-dev
+  linux_install vim htop tmux ffmpge wget curl ssh
+  linux_install navi
 
   # install from source
   source_path=${origin}/local/source
@@ -344,11 +345,9 @@ else
 fi
 
 # oh-my-zsh plugins
-# zsh-autosuggestions
-# cause bugs when using
-# if [ ! -d "${origin}/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
-  # git clone https://github.com/zsh-users/zsh-autosuggestions "${origin}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
-# fi
+# spaceship prompt
+git clone https://github.com/denysdovhan/spaceship-prompt.git "$ZSH_CUSTOM/themes/spaceship-prompt"
+ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
 
 # .tmux
 if [ ! -d "${origin}/.tmux" ]; then
