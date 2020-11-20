@@ -2,12 +2,16 @@
 # File              : .zshrc
 # Author            : Yunkai Li <ykli@aibee.cn>
 # Date              : 25.03.2019
-# Last Modified Date: 02.06.2020
+# Last Modified Date: 23.10.2020
 # Last Modified By  : Yunkai Li <yunkai.li@hotmail.com>
 
 export TERM="xterm-256color"
 # If you come from bash you might have to change your $PATH.
-export PATH=$HOME/local/bin:$HOME/.local/bin/:/usr/local/bin:$PATH
+# User configuration
+export PATH=$HOME/local/bin:/opt/conda/bin/:/usr/local/cuda/bin/:/usr/local/bin:$PATH
+export LD_LIBRARY_PATH=$HOME/local/lib:/opt/conda/lib:/usr/lib/x86_64-linux-gnu/:/usr/local/cuda/lib64/:/usr/lib:/usr/local/lib:$LD_LIBRARY_PATH
+export C_INCLUDE_PATH=$HOME/local/include:$C_INCLUDE_PATH
+export PKG_CONFIG_PATH=$HOME/local/lib/pkgconfig:$PKG_CONFIG_PATH
 
 # prevent ls color
 # alias ls="ls --color=always"
@@ -19,7 +23,9 @@ export ZSH=$HOME/.oh-my-zsh
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
+#
 # ZSH_THEME="bira"
+
 ZSH_THEME="spaceship"
 
 # Uncomment the following line to use case-sensitive completion.
@@ -30,10 +36,10 @@ ZSH_THEME="spaceship"
 HYPHEN_INSENSITIVE="true"
 
 # Uncomment the following line to disable bi-weekly auto-update checks.
-# DISABLE_AUTO_UPDATE="true"
+DISABLE_AUTO_UPDATE="true"
 
 # Uncomment the following line to change how often to auto-update (in days).
-export UPDATE_ZSH_DAYS=13
+# export UPDATE_ZSH_DAYS=7
 
 # Uncomment the following line to disable colors in ls.
 # DISABLE_LS_COLORS="true"
@@ -65,30 +71,40 @@ export UPDATE_ZSH_DAYS=13
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 #
-plugins=(
-        colored-man-pages
-        colorize
-        common-aliases
-        fzf
-        git
-        last-working-dir
-        tmux
-        vi-mode
-        zsh-completions
-        )
-# history
-# autoload -U compinit && compinit
+plugins=(colored-man-pages
+         colorize
+         common-aliases
+         conda-zsh-completion
+         docker
+         fzf
+         git
+         last-working-dir
+         tmux
+         vi-mode
+         virtualenv
+         virtualenvwrapper
+         )
 
 source $ZSH/oh-my-zsh.sh
 
+# autoload -U promptinit; promptinit
+
+# spaceship prompt config
 SPACESHIP_DIR_TRUNC='0'
 SPACESHIP_DIR_TRUNC_REPO=False
 SPACESHIP_VI_MODE_SHOW=false
 
-# User configuration
-export LD_LIBRARY_PATH=$HOME/local/lib:$HOME/.local/lib:/usr/lib:/usr/local/lib:$LD_LIBRARY_PATH
-export C_INCLUDE_PATH=$HOME/local/include:$C_INCLUDE_PATH
-export PKG_CONFIG_PATH=$HOME/local/lib/pkgconfig:$PKG_CONFIG_PATH
+# hadoop
+# export PATH='/home/hadoop/software/apache-hive-2.3.2U2-bin/bin/':$PATH
+# export LD_LIBRARY_PATH='/home/hadoop/software/apache-hive-2.3.2U2-bin/lib/':$LD_LIBRARY_PATH
+export HADOOP_USER_NAME=mmu
+
+# virtualenv
+# export VIRTUAL_ENV_DISABLE_PROMPT=
+export VIRTUALENVWRAPPER_PYTHON=/opt/conda/bin/python
+export WORKON_HOME=$HOME/local/.virtualenvs
+# export PROJECT_HOME=$HOME/workspace
+source /opt/conda/bin/virtualenvwrapper.sh
 
 # cuda
 # export LD_LIBRARY_PATH=/usr/local/cuda/lib64/:/usr/local/lib64/:$LD_LIBRARY_PATH
@@ -132,8 +148,9 @@ alias ssh='ssh -CAXY'
 alias rsync='rsync -avrP'
 alias axel='axel -a'
 alias tree='tree -C'
-alias ncdu='ncdu --color dark'
 alias ipython='python3 -m IPython'
+alias cp='rsync'
+alias mkdir='mkdir -p'
 
 # trash
 mkdir -p ~/.trash
@@ -164,7 +181,6 @@ function _pip_completion {
 compctl -K _pip_completion pip3
 # pip zsh completion end
 
-
 # Update environments every time tmux restarts
 # if [ -n "$TMUX" ]; then
     # function refresh {
@@ -178,10 +194,36 @@ compctl -K _pip_completion pip3
     # refresh
 # }
 
-# use navi as shell widget
-# export PATH=$PATH:"$ZSH_CUSTOM/plugins/navi"
-source "$(navi widget zsh)"
+# proxy
+function use_domestic_proxy {
+  unset http_proxy
+  unset https_proxy
+  export http_proxy=http://10.28.121.13:11080
+  export https_proxy=http://10.28.121.13:11080
+}
+# use_domestic_proxy
+
+function use_oversea_proxy {
+  unset http_proxy
+  unset https_proxy
+  export http_proxy=http://bjm7-squid4.jxq:11080
+  export https_proxy=http://bjm7-squid4.jxq:11080
+}
+
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# iterm2
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+# __conda_setup="$('/opt/conda/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+# if [ $? -eq 0 ]; then
+    # eval "$__conda_setup"
+# else
+    # if [ -f "/opt/conda/etc/profile.d/conda.sh" ]; then
+        # . "/opt/conda/etc/profile.d/conda.sh"
+    # else
+        # export PATH="/opt/conda/bin:$PATH"
+    # fi
+# fi
+# unset __conda_setup
+# <<< conda initialize <<<
+
