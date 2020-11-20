@@ -2,7 +2,7 @@
 # File              : AutoEnv.sh
 # Author            : Yunkai Li <ykli@aibee.cn>
 # Date              : 25.03.2019
-# Last Modified Date: 02.06.2020
+# Last Modified Date: 20.11.2020
 # Last Modified By  : Yunkai Li <yunkai.li@hotmail.com>
 
 RED='\e[1;31m'
@@ -66,285 +66,63 @@ if [ ${isLinux} = 1 ]; then
   fi
 fi
 
-# Python ENV Check
-if [ ! -x "$(command -v python3)" ]; then
-  echo "install python3 first"
-  if [ ${isLinux} = 1 ]; then
-    # install by root
-    if [ -x "$(command -v apt-get)" ]; then
-      linux_install install python3 python3-pip
-    elif [ -x "$(command -v yum)" ]; then
-      linux_install yum-utils
-      linux_install https://centos7.iuscommunity.org/ius-release.rpm
-      linux_install python36u python36u-devel python36u-pip
-    fi
-  elif [ ${isOSX} = 1 ]; then
-    brew install python3
-  fi
-fi
-echo "${GREEN}Python3 Check Pass${WHITE}"
+echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ xenial main restricted universe multiverse" >> /etc/apt/sources.list
+echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ xenial-updates main restricted universe multiverse\n$(cat /etc/apt/sources.list)" >> /etc/apt/sources.list
+echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ xenial-backports main restricted universe multiverse\n$(cat /etc/apt/sources.list)" >> /etc/apt/sources.list
+echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ xenial-security main restricted universe multiverse\n$(cat /etc/apt/sources.list)" >> /etc/apt/sources.list
 
-# ZSH ENV Check
-if [ ! -x "$(command -v zsh)" ]; then
-  if [ ${isLinux} = 1 ]; then
-    linux_install zsh
-  elif [ ${isOSX} = 1 ]; then
-    brew install zsh
-  fi
-fi
-echo "${GREEN}ZSH Check Pass${WHITE}"
+apt-get update && apt-get install -y apt-transport-https
 
-# Software installation
+apt-get install -y --no-install-recommends \
+    apt-utils \
+    pkg-config \
+    build-essential \
+    locales \
+    ca-certificates
 
-# For Linux,  Install to local
-install_w_config()
-{
-  local install_type cmd target url dirname newop conf
-  newop="ls"
-  while [[ ${1} ]];
-  do
-      case "${1}" in
-          -type)
-            install_type=${2}
-            shift
-            ;;
-          -cmd)
-            cmd=${2}
-            shift
-            ;;
-          -target)
-            target=${2}
-            shift
-            ;;
-          -url)
-            url=${2}
-            shift
-            ;;
-          -dirname)
-            dirname=${2}
-            shift
-            ;;
-          -conf)
-            conf="$conf ${2}"
-            shift
-            ;;
-          -newop)
-            newop="$newop && ${2}"
-            shift
-            ;;
-          *)
-            echo "illegal option"
-            echo $1
-            return 1 # illegal option
-      esac
+apt-get install -y --no-install-recommends \
+    gcc \
+    python3 \
+    python3-pip \
+    python3-dev \
+    python3-setuptools
 
-      if ! shift; then
-        echo 'Missing parameter argument.' >&2
-        return 1
-      fi
-  done
+apt-get install -y --no-install-recommends \
+    curl \
+    wget \
+    make \
+    automake \
+    cmake \
+    net-tools
 
-  # install in anyway
-  echo -e "${RED}Install ${cmd}${WHITE}"
-  cd ${source_path}
+apt-get install -y --no-install-recommends \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    zlib1g-dev \
+    libevent-dev \
+    libncurses5-dev \
+    cmake-curses-gui \
+    libssl-dev
 
-  if [ ${install_type} = 'tar' ]; then
-    if [ -x "$(command -v ${cmd})" ]; then
-      return 0
-    fi
-    # download tar file
-    if [ -d ${dirname} ]; then
-      /bin/rm ${dirname} -rf
-    fi
-    if [ ! -f ${target} ]; then
-      wget ${url} -O ${target}
-    fi
-    tar xf ${target}
+apt-get install -y --no-install-recommends \
+    ssh \
+    axel \
+    silversearcher-ag \
+    jq \
+    gawk \
+    ctags \
+    id-utils \
+    cscope \
+    graphviz \
+    tree \
+    tig \
 
-  elif [ ${install_type} = 'git' ]; then
-    # clone from git
-    if [ ! -d ${dirname} ]; then
-    git clone --recursive ${url} ${dirname}
-    # else
-    # cd ${dirname}
-    # git checkout *
-    # git pull origin master
-    # cd ..
-    fi
-  else
-    echo "Unknown Install Type"
-    return 1
-  fi
+pip3 install -U pip
+pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
-  cd ${dirname}
-
-  if [ -n "${newop}" ]; then
-    eval ${newop}
-  fi
-  if [ -z ${conf} ]; then
-    ./configure --prefix=${install_path}
-  else
-    ./configure ${conf} --prefix=${install_path}
-  fi
-
-  make -j && make install
-}
-
-if [ ${isLinux} = 1 ]; then
-
-  # install by root
-  linux_install axel silversearcher-ag jq
-  linux_install gawk ctags id-utils cscope graphviz tree tig
-  linux_install libevent-dev libpng libpng-dev
-  linux_install vim htop tmux ffmpge wget curl ssh
-  linux_install navi
-
-  # install from source
-  source_path=${origin}/local/source
-  install_path=${origin}/local
-  unset LD_LIBRARY_PATH C_INCLUDE_PATH PKG_CONFIG_PATH
-  export PATH=${origin}/local/bin:$PATH
-  export LD_LIBRARY_PATH=${origin}/local/lib:$LD_LIBRARY_PATH
-  export C_INCLUDE_PATH=${origin}/local/include:$C_INCLUDE_PATH
-  export PKG_CONFIG_PATH=${origin}/local/lib/pkgconfig:$PKG_CONFIG_PATH
-
-  echo -e "${YELLOW}install from source${WHITE}"
-  echo -e "${YELLOW}download source in ${source_path}${WHITE}"
-
-  if [ ! -d ${source_path} ]; then
-    mkdir -p ${source_path}
-  fi
-  if [ ! -d ${source_path} ]; then
-    echo -e "${RED}${source_path} does not exist${WHITE}"
-    exit 1
-  fi
-
-  # git
-  install_w_config \
-   -type git \
-   -cmd git \
-   -url https://github.com/git/git \
-   -dirname git \
-   -newop "git checkout 2.6"
-
-  # idutils
-  # >= v4.5 has bugs
-  install_w_config \
-    -type tar \
-    -cmd gid \
-    -target idutils.tar.gz \
-    -url https://ftp.gnu.org/gnu/idutils/idutils-4.2.tar.gz \
-    -dirname idutils-4.2
-
-  # for tmux
-  # help2man
-  install_w_config \
-    -type tar \
-    -cmd help2man \
-    -target help2man.tar.xz \
-    -url https://ftp.gnu.org/gnu/help2man/help2man-1.47.12.tar.xz \
-    -dir help2man-1.47.12
-
-  # autoconf
-  install_w_config \
-    -type tar \
-    -url https://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.xz \
-    -dirname autoconf-2.69
-
-  # libevent
-  install_w_config \
-    -type git \
-    -url https://github.com/libevent/libevent \
-    -dirname libevent \
-    -newop "git checkout release-2.1.8-stable" \
-    -newop "bash autogen.sh"
-
-  # tmux
-  install_w_config \
-    -type git \
-    -cmd tmux \
-    -url https://github.com/tmux/tmux \
-    -dirname tmux \
-    -newop "git checkout 2.6" \
-    -newop "bash autogen.sh"
-
-  # vim
-  install_w_config \
-    -type git \
-    -url https://github.com/vim/vim \
-    -dirname vim \
-    -conf --enable-terminal \
-    -conf --enable-python3interp=yes
-
-  # x264
-  install_w_config \
-    -type git \
-    -url http://git.videolan.org/git/x264 \
-    -dirname x264 \
-    -newop PKG_CONFIG_PATH=${install_path}/lib/pkgconfig \
-    -conf --bindir="${install_path}/bin" \
-    -conf --enable-static \
-    -conf --enable-shared \
-    -conf --enable-pic
-
-  # ffmpeg
-  install_w_config \
-    -type git \
-    -url \
-    -dirname ffmpeg \
-    -newop PKG_CONFIG_PATH=${install_path}/lib/pkgconfig \
-    -conf --pkg-config-flags="--static" \
-    -conf --extra-cflags="-I${install_path}/include" \
-    -conf --extra-ldflags="-L${install_path}/local/lib" \
-    -conf --extra-libs=-lpthread \
-    -conf --extra-libs=-lm \
-    -conf --bindir="${install_path}/bin" \
-    -conf --enable-gpl \
-    -conf --enable-libx264 \
-    -conf --enable-nonfree \
-    -conf --enable-avresample \
-    -conf --enable-shared \
-    -conf --enable-pic \
-    -conf --tempprefix=./temp/
-
-elif [ ${isOSX} = 1 ]; then
-
-  # common utils
-  brew install axel the_silver_searcher jq
-  brew install gawk ctags cscope idutils graphviz tree tig
-  brew install vim htop tmux ffmpge wget curl ssh
-
-  # common mac apps
-  brew tap caskroom/cask
-  brew cask install iterm2 cleanmymac iina keka baidunetdisk dash foxitreader mendeley transmit
-
-  # For YouCompleteMe
-  brew install macvim
-  echo "${RED}entering YouCompleteMe and run python3 install.py --clang-completer${WHITE}"
-fi
-
-# ZSH Installation
-cd ${origin}
-
-if [ ! -d "${origin}/.oh-my-zsh" ]; then
-  # you may reinstall zsh
-  sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
-  # copy defalut zsh config
-  cp -f "${abpath}/.zshrc" ${origin}
-  # change default shell to zsh
-  if [ ${isRoot} = 1 ]; then
-    sudo usermod -s /bin/zsh $(whoami)
-  else
-    chsh -s /bin/zsh
-  fi
-  echo -e "${RED}To make default shell zsh, You need to re-login"
-  echo -e "sudo usermod -s /bin/zsh \$\(whoami\)"
-  echo -e "chsh -s /bin/zsh${WHITE}"
-else
-  echo -e "${RED}.oh-my-zsh is found in ${origin}${WHITE}"
-fi
-
-# oh-my-zsh plugins
+# oh-my-zsh 
+sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 # spaceship prompt
 git clone https://github.com/denysdovhan/spaceship-prompt.git "$ZSH_CUSTOM/themes/spaceship-prompt"
 ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
@@ -368,19 +146,6 @@ if [ ! -d "awesome-terminal-fonts" ]; then
   git checkout pathcing-strategy
   ./droid.sh
 fi
-
-# Deprecated nerd-fonts
-# if [ ! -d "nerd-fonts" ]; then
-  # if [ ${isLinux} = 1 ]; then
-    # git clone https://github.com/ryanoasis/nerd-fonts.git
-    # cd nerd-fonts
-    # ./install.sh
-  # elif [ ${isOSX} = 1 ]; then
-    # brew tap caskroom/fonts
-    # brew cask install caskroom/fonts/font-awesome-terminal-fonts
-    # brew cask install caskroom/fonts/font-hack-nerd-font
-  # fi
-# fi
 
 # exvim
 if [ ! -d ".exvim" ]; then
