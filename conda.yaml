@@ -24,7 +24,6 @@ dependencies:
   - conda-build=3.18.11=py36_0
   - conda-package-handling=1.7.2=py36h03888b9_0
   - cryptography=3.1.1=py36h1ba5d50_0
-  - curl=7.26.0=1
   - cymem=1.31.2=py36h6bb024c_0
   - cytoolz=0.8.2=py36h708bfd4_0
   - decorator=4.4.2=py_0
@@ -168,6 +167,7 @@ dependencies:
   - zsh=5.6.2=hf8c457e_1000
   - zstd=1.4.5=h9ceee32_0
   - pip:
+    - pip==20.2.4
     - absl-py==0.9.0
     - aiocontextvars==0.2.2
     - alabaster==0.7.12
@@ -262,7 +262,6 @@ dependencies:
     - pbr==5.5.0
     - pillow==6.2.2
     - pillow-simd==5.3.0.post1
-    - pip==20.2.4
     - pluggy==0.13.1
     - portalocker==2.0.0
     - progressbar==2.5
@@ -342,4 +341,5 @@ dependencies:
     - werkzeug==1.0.0
     - yacs==0.1.6
     - zipp==3.1.0
+    - curl=7.26.0=1
 prefix: /opt/conda
