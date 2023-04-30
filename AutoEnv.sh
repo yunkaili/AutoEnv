@@ -46,17 +46,27 @@ if [ ${isOSX} = 1 ] && [ ! hash brew 2>/dev/null ]; then
     echo -e "${GREEN}Install Brew${WHITE}"
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
   }
-else
+fi
+
+if [ ${isLinux} = 1 ]; then 
+
+  if [ ! -d "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"	
+  fi
+	
+  if [ ! hash brew 2>/dev/null ]; then
   {
     echo -e "${GREEN}Install Brew${WHITE}"
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   }
+  fi
+
 fi
 
 # Software installation
 brew install axel the_silver_searcher jq
 brew install gawk ctags cscope idutils graphviz tree tig
-brew install vim htop tmux ffmpeg wget curl fzf
+brew install vim neovim htop tmux ffmpeg wget curl fzf
 locale-gen en_US.UTF-8
 
 # ZSH Installation
@@ -82,8 +92,10 @@ fi
 
 # oh-my-zsh plugins
 # spaceship prompt
-git clone https://github.com/denysdovhan/spaceship-prompt.git "$ZSH_CUSTOM/themes/spaceship-prompt"
-ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
+if [ ! -d "$ZSH_CUSTOM/themes/spaceship-prompt" ]; then 
+  git clone https://github.com/denysdovhan/spaceship-prompt.git "$ZSH_CUSTOM/themes/spaceship-prompt"
+  ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
+fi
 
 # .tmux
 if [ ! -d "${origin}/.tmux" ]; then
@@ -108,23 +120,15 @@ if [ ! -d "awesome-terminal-fonts" ]; then
   cd ${origin}
 fi
 
-# exvim
-if [ ! -d ".exvim" ]; then
+# AstroNvim
+if [ ! -d "{origin}/.config/nvim" ]; then
   cd ${origin}
-  echo -e "${GREEN}exvim[1/4] cloning repo${WHITE}"
-  git clone https://github.com/yunkaili/main .exvim
+  echo -e "${GREEN}astrioNvim${WHITE}"
+  git clone --depth 1 https://gitlab.com/liyunkai/astronvimconfig.git "${origin}/.config/nvim"
   cd ${origin}
 fi
 
-cd "${origin}/.exvim"
-
-echo -e "${GREEN}exvim[2/4] build vimrc${WHITE}"
-echo "let g:exvim_custom_path='~/.exvim/'
-source ~/.exvim/.vimrc" > ~/.vimrc
-
-echo -e "${GREEN}exvim[3/4] install vundle${WHITE}"
-bash install.sh
-
-echo -e "${GREEN}exvim[4/4] update plugins${WHITE}"
-vim +PlugInstall +qall
-echo -e "${RED}exvim Installed${WHITE}"
+nvim +AstroUpdatePackages
+nvim +LspInstall pyright
+nvim +TSInstall python
+nvim +DapInstall python

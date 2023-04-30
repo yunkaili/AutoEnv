@@ -12,7 +12,19 @@ export TERM="xterm-256color"
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
+# User configuration
+# export MANPATH="/usr/local/man:$MANPATH"
+
+# Linuxbrew
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+# FZF
 export FZF_BASE='/home/linuxbrew/.linuxbrew/opt/fzf'
+
+# ENV
+export CUDA_HOME=/usr/local/cuda
+export PATH=$PATH:$CUDA_HOME/bin
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -94,15 +106,6 @@ plugins=(colored-man-pages
 
 source $ZSH/oh-my-zsh.sh
 
-# User configuration
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-export CUDA_HOME=/usr/local/cuda
-export PATH=$PATH:$CUDA_HOME/bin
-export LD_LIBRARY_PATH=/usr/local/cuda-11.8/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
-
 # Pytorch
 export OMP_NUM_THREADS=1
 
@@ -123,7 +126,6 @@ export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bot
 export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
 export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
 export HOMEBREW_PIP_INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"
-
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
