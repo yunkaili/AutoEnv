@@ -16,10 +16,11 @@ export ZSH="$HOME/.oh-my-zsh"
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # Linuxbrew
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+export HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
+eval "$HOMEBREW_PREFIX/bin/brew shellenv"
 
 # FZF
-export FZF_BASE='/home/linuxbrew/.linuxbrew/opt/fzf'
+export FZF_BASE=$HOMEBREW_PREFIX/opt/fzf
 
 # ENV
 export CUDA_HOME=/usr/local/cuda
@@ -115,17 +116,17 @@ export LC_ALL=en_US.UTF-8
 export LC_CTYPE=en_US.UTF-8
 
 # Preferred editor for local and remote sessions
-export EDITOR='vim'
+export EDITOR='nvim'
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 
 # Linuxbrew
-export HOMEBREW_API_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/api"
-export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
-export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
-export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
-export HOMEBREW_PIP_INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"
+# export HOMEBREW_API_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/api"
+# export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
+# export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
+# export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
+# export HOMEBREW_PIP_INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
@@ -161,16 +162,17 @@ trash()
   mv $@ $HOME/.trash/
 }
 
+export CONDA_BASE="/opt/conda"
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/root/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+__conda_setup="'$CONDA_BASE/bin/conda' 'shell.zsh' 'hook' 2> /dev/null"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
 else
-    if [ -f "/root/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "/root/miniconda3/etc/profile.d/conda.sh"
+    if [ -f "$CONDA_BASE/etc/profile.d/conda.sh" ]; then
+        . "$CONDA_BASE/etc/profile.d/conda.sh"
     else
-        export PATH="/root/miniconda3/bin:$PATH"
+        export PATH="$CONDA_BASE/bin:$PATH"
     fi
 fi
 unset __conda_setup
@@ -179,6 +181,6 @@ unset __conda_setup
 fpath+=$HOME/.oh-my-zsh/custom/plugins/conda-zsh-completion
 compinit conda
 
-export PATH="$HOME/miniconda3/bin":$PATH
+export PATH=$CONDA_BASE/bin:$PATH
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
