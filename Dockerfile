@@ -1,20 +1,25 @@
 FROM nvcr.io/nvidia/pytorch:21.10-py3
-ENV DEBIAN_FRONTEND noninteractive
+# ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && apt-get install -y apt-transport-https
 RUN apt install -y --no-install-recommends apt-utils pkg-config build-essential locales ca-certificates
-RUN apt install -y --no-install-recommends gcc python3 python3-pip python3-dev python3-setuptools
-RUN apt install -y --no-install-recommends curl wget make automake cmake net-tools
-RUN apt install -y --no-install-recommends libpng-dev libjpeg-dev libfreetype6-dev zlib1g-dev libevent-dev libncurses5-dev cmake-curses-gui libssl-dev
-RUN apt install -y --no-install-recommends ssh axel silversearcher-ag jq gawk ctags id-utils cscope graphviz tree tig neovim tmux
-RUN locale-gen en_US.UTF-8 && update-locale
+# RUN apt install -y --no-install-recommends gcc python3 python3-pip python3-dev python3-setuptools
+# RUN apt install -y --no-install-recommends curl wget make automake cmake net-tools
+# RUN apt install -y --no-install-recommends libpng-dev libjpeg-dev libfreetype6-dev zlib1g-dev libevent-dev libncurses5-dev cmake-curses-gui libssl-dev
+# RUN apt install -y --no-install-recommends ssh axel silversearcher-ag jq gawk ctags id-utils cscope graphviz tree tig neovim tmux
+RUN locale-gen "en_US.UTF-8" 
+RUN update-locale
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV LC_TYPE=en_US.UTF-8
 
 # HomeBrew
 RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ENV PATH=/home/linuxbrew/.linuxbrew/bin:$PATH
 
+RUN brew install axel the_silver_searcher gawk ctags cscope idutils graphviz tree tig vim neovim htop tmux ffmpeg wget curl fzf jq ripgrep
+
 # Pypi
 RUN pip3 install -U pip
-RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 WORKDIR /root
 
 # Tmux
@@ -38,11 +43,8 @@ RUN git clone https://github.com/yunkaili/AutoEnv.git AutoEnv
 RUN cp AutoEnv/.tmux.conf.local AutoEnv/.zshrc /root
 RUN rm -rf AutoEnv
 RUN ln -s "/root/.oh-my-zsh/custom/themes/spaceship-prompt/spaceship.zsh-theme" "/root/.oh-my-zsh/custom/themes/spaceship.zsh-theme"
-# Nvim
-# RUN git clone --depth 1 https://gitlab.com/liyunkai/astronvimconfig.git /root/.config/nvim
-# Fzf
-RUN git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-RUN ~/.fzf/install
+
 # Env
+RUN conda init zsh
 RUN echo "exec zsh" >> /root/.bash_profile
 CMD ["bash", "-l"]
