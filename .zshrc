@@ -17,7 +17,7 @@ export ZSH="$HOME/.oh-my-zsh"
 
 # Linuxbrew
 export HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
-eval "$HOMEBREW_PREFIX/bin/brew shellenv"
+eval "$($HOMEBREW_PREFIX/bin/brew shellenv)"
 
 # FZF
 export FZF_BASE=$HOMEBREW_PREFIX/opt/fzf
