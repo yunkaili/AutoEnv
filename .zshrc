@@ -96,7 +96,6 @@ HYPHEN_INSENSITIVE="true"
 plugins=(colored-man-pages
          colorize
          common-aliases
-         conda-zsh-completion
          docker
          fzf
          git

@@ -96,6 +96,8 @@ if [ ! -d "$ZSH_CUSTOM/themes/spaceship-prompt" ]; then
   git clone https://github.com/denysdovhan/spaceship-prompt.git "$ZSH_CUSTOM/themes/spaceship-prompt"
   ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
 fi
+# conda-zsh-completion
+git clone https://github.com/conda-incubator/conda-zsh-completion.git "$ZSH_CUSTOM/plugins/conda-zsh-completion"
 
 # .tmux
 if [ ! -d "${origin}/.tmux" ]; then
@@ -124,11 +126,9 @@ fi
 if [ ! -d "{origin}/.config/nvim" ]; then
   cd ${origin}
   echo -e "${GREEN}astrioNvim${WHITE}"
-  git clone --depth 1 https://gitlab.com/liyunkai/astronvimconfig.git "${origin}/.config/nvim"
+  git clone --depth 1 https://github.com/AstroNvim/AstroNvim "${origin}/.config/nvim"
+  git clone --depth 1 https://github.com/yunkaili/astronvim_user.git "${origin}/.config/nvim/lua/user"
   cd ${origin}
 fi
 
-nvim +AstroUpdatePackages
-nvim +LspInstall pyright
-nvim +TSInstall python
-nvim +DapInstall python
+nvim --headless -c 'quitall'
