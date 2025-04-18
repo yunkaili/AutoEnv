@@ -30,6 +30,9 @@ if [ ${machine} = "Mac" ]; then
 elif [ ${machine} = "Linux" ]; then
   isOSX=0
   isLinux=1
+  apt-get update && apt-get install -y apt-transport-https
+  apt install -y --no-install-recommends apt-utils pkg-config build-essential locales ca-certificates
+  apt install -y --no-install-recommends zsh
 else
   echo -e "${RED}Support Mac or Linux"
   exit 0
@@ -48,7 +51,7 @@ if [ ${isOSX} = 1 ] && [ ! hash brew 2>/dev/null ]; then
   }
 fi
 
-if [ ${isLinux} = 1 ]; then 
+if [ ${isLinux} = 1 ] && [ ! hash brew 2>/dev/null ]; then 
 
   if [ ! -d "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"	
@@ -75,14 +78,12 @@ cd ${origin}
 if [ ! -d "${origin}/.oh-my-zsh" ]; then
   # you may reinstall zsh
   sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
-  # copy defalut zsh config
-  cp -f "${abpath}/.zshrc" ${origin}
   # change default shell to zsh
-  if [ ${isRoot} = 1 ]; then
-    sudo usermod -s /bin/zsh $(whoami)
-  else
-    chsh -s /bin/zsh
-  fi
+  # if [ ${isRoot} = 1 ]; then
+  #   sudo usermod -s /bin/zsh $(whoami)
+  # else
+  #   chsh -s /bin/zsh
+  # fi
   echo -e "${RED}To make default shell zsh, You need to re-login"
   echo -e "sudo usermod -s /bin/zsh \$\(whoami\)"
   echo -e "chsh -s /bin/zsh${WHITE}"
@@ -90,15 +91,34 @@ else
   echo -e "${RED}.oh-my-zsh is found in ${origin}${WHITE}"
 fi
 
+# copy defalut zsh config
+cp -f "${abpath}/.zshrc" ${origin}
+chsh -s /bin/zsh
+
 # oh-my-zsh plugins
 # spaceship prompt
 if [ ! -d "$ZSH_CUSTOM/themes/spaceship-prompt" ]; then 
+  /bin/rm -rf "$ZSH_CUSTOM/themes/spaceship-prompt"
   git clone https://github.com/denysdovhan/spaceship-prompt.git "$ZSH_CUSTOM/themes/spaceship-prompt"
   ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
 fi
 # conda-zsh-completion
-git clone https://github.com/conda-incubator/conda-zsh-completion.git "$ZSH_CUSTOM/plugins/conda-zsh-completion"
+if [ ! -d "$ZSH_CUSTOM/plugins/conda-zsh-completion" ]; then
+  /bin/rm -rf "$ZSH_CUSTOM/plugins/conda-zsh-completion"
+  git clone https://github.com/conda-incubator/conda-zsh-completion.git "$ZSH_CUSTOM/plugins/conda-zsh-completion"
+fi
+# auto-suggestions
+if [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]; then
+  /bin/rm -rf "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+  git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+fi
+# syntax-highlight
+if [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]; then
+  /bin/rm -rf "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+fi
 
+# Tmux
 # .tmux
 if [ ! -d "${origin}/.tmux" ]; then
   cd ${origin}
@@ -112,22 +132,11 @@ echo "run following instructions when log into a server"
 echo -e "${YELLOW}eval \`ssh-agent -s\`"
 echo -e "ssh-add .ssh/id_rsa${WHITE}"
 
-# awesome terminal fonts install
-if [ ! -d "awesome-terminal-fonts" ]; then
-  cd ${origin}
-  git clone https://github.com/gabrielelana/awesome-terminal-fonts
-  cd "awesome-terminal-fonts"
-  git checkout pathcing-strategy
-  ./droid.sh
-  cd ${origin}
-fi
-
 # AstroNvim
 if [ ! -d "{origin}/.config/nvim" ]; then
   cd ${origin}
   echo -e "${GREEN}astrioNvim${WHITE}"
-  git clone --depth 1 https://github.com/AstroNvim/AstroNvim "${origin}/.config/nvim"
-  git clone --depth 1 https://github.com/yunkaili/astronvim_user.git "${origin}/.config/nvim/lua/user"
+  git clone git@github.com:yunkaili/astronvim_4.0_cfg.git "${origin}/.config/nvim"
   cd ${origin}
 fi
 

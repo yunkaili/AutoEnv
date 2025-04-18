@@ -23,9 +23,9 @@ eval "$($HOMEBREW_PREFIX/bin/brew shellenv)"
 export FZF_BASE=$HOMEBREW_PREFIX/opt/fzf
 
 # ENV
-export CUDA_HOME=/usr/local/cuda
-export PATH=$PATH:$CUDA_HOME/bin
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+# export CUDA_HOME=/usr/local/cuda
+# export PATH=$PATH:$CUDA_HOME/bin
+# export LD_LIBRARY_PATH=/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -94,7 +94,6 @@ HYPHEN_INSENSITIVE="true"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(colored-man-pages
-         colorize
          common-aliases
          docker
          fzf
@@ -102,6 +101,8 @@ plugins=(colored-man-pages
          last-working-dir
          tmux
          vi-mode
+	 zsh-autosuggestions
+	 zsh-syntax-highlighting
 	)
 
 source $ZSH/oh-my-zsh.sh
@@ -161,9 +162,15 @@ trash()
   mv $@ $HOME/.trash/
 }
 
+# fzf
+set rtp+=/opt/homebrew/opt/fzf
+source <(fzf --zsh)
+
+# conda
 fpath+=$HOME/.oh-my-zsh/custom/plugins/conda-zsh-completion
 compinit conda
 
-export PATH=/opt/conda/bin:$PATH
+# auto-highlight
+source $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+export PATH=/opt/conda/bin:$PATH
