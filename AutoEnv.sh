@@ -72,7 +72,7 @@ fi
 brew install axel the_silver_searcher jq
 brew install gawk ctags cscope idutils graphviz tree tig
 brew install vim neovim htop tmux ffmpeg wget curl fzf
-brew install gdu bottom lazygit
+brew install gdu bottom lazygit npm
 locale-gen en_US.UTF-8
 
 # ZSH Installation
