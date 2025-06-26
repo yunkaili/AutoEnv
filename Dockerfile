@@ -16,7 +16,7 @@ ENV LC_TYPE=en_US.UTF-8
 RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ENV PATH=/home/linuxbrew/.linuxbrew/bin:$PATH
 
-RUN brew install axel the_silver_searcher gawk ctags cscope idutils graphviz tree tig vim neovim htop tmux ffmpeg wget curl fzf jq ripgrep
+RUN brew install axel the_silver_searcher gawk ctags cscope idutils graphviz tree tig vim neovim htop tmux ffmpeg wget curl fzf jq ripgrep gdu bottom lazygit
 
 # Pypi
 RUN pip3 install -U pip
