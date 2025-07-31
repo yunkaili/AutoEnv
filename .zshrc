@@ -1,37 +1,23 @@
-#!/bin/zsh
-# File              : .zshrc
-# Author            : Yunkai Li <ykli@aibee.cn>
-# Date              : 25.03.2019
-# Last Modified Date: 25.04.2023
-# Last Modified By  : Yunkai Li <yunkai.li@hotmail.com>
-
-export TERM="xterm-256color"
 # If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+# export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
 
-# Path to your oh-my-zsh installation.
+# Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
-# User configuration
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# Linuxbrew
+# Homebrew
+# export HOMEBREW_INSTALL_FROM_API=1
+# export HOMEBREW_API_DOMAIN="https://mirrors.aliyun.com/homebrew-bottles/api"
+# export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.aliyun.com/homebrew/brew.git"
+# export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.aliyun.com/homebrew/homebrew-core.git"
+# export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.aliyun.com/homebrew/homebrew-bottles"
 export HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
 eval "$($HOMEBREW_PREFIX/bin/brew shellenv)"
 
-# FZF
-export FZF_BASE=$HOMEBREW_PREFIX/opt/fzf
-
-# ENV
-# export CUDA_HOME=/usr/local/cuda
-# export PATH=$PATH:$CUDA_HOME/bin
-# export LD_LIBRARY_PATH=/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
-
 # Set name of the theme to load --- if set to "random", it will
-# load a random theme each time oh-my-zsh is loaded, in which case,
+# load a random theme each time Oh My Zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="robbyrussell" # set by `omz`
+ZSH_THEME="spaceship"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -94,43 +80,40 @@ HYPHEN_INSENSITIVE="true"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(colored-man-pages
-         common-aliases
-         docker
-         fzf
-         git
-         last-working-dir
-         tmux
-         vi-mode
-	 zsh-autosuggestions
-	 zsh-syntax-highlighting
-	)
+        common-aliases
+        docker
+        fzf
+        git
+        git-commit
+        last-working-dir
+        tmux 
+        vi-mode
+        zsh-fzf-history-search
+        zsh-syntax-highlighting
+    )
 
 source $ZSH/oh-my-zsh.sh
 
-# Pytorch
-export OMP_NUM_THREADS=1
+# User configuration
+
+# export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
-export LC_CTYPE=en_US.UTF-8
 
 # Preferred editor for local and remote sessions
 export EDITOR='nvim'
 
 # Compilation flags
-# export ARCHFLAGS="-arch x86_64"
+# export ARCHFLAGS="-arch $(uname -m)"
 
-# Linuxbrew
-# export HOMEBREW_API_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/api"
-# export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
-# export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
-# export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
-# export HOMEBREW_PIP_INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"
-
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
+# Set personal aliases, overriding those provided by Oh My Zsh libs,
+# plugins, and themes. Aliases can be placed here, though Oh My Zsh
+# users are encouraged to define aliases within a top-level file in
+# the $ZSH_CUSTOM folder, with .zsh extension. Examples:
+# - $ZSH_CUSTOM/aliases.zsh
+# - $ZSH_CUSTOM/macos.zsh
 # For a full list of active aliases, run `alias`.
 #
 # Example aliases
@@ -162,15 +145,16 @@ trash()
   mv $@ $HOME/.trash/
 }
 
-# fzf
-set rtp+=/opt/homebrew/opt/fzf
-source <(fzf --zsh)
-
-# conda
-fpath+=$HOME/.oh-my-zsh/custom/plugins/conda-zsh-completion
-compinit conda
-
-# auto-highlight
+# syntax highlighting
 source $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-export PATH=/opt/conda/bin:$PATH
+# conda zsh completion
+fpath+=~/.oh-my-zsh/custom/plugins/conda-zsh-completion
+compinit conda
+
+# FZF
+export FZF_BASE=$HOMEBREW_PREFIX/opt/fzf
+source $HOMEBREW_PREFIX/opt/fzf/shell/key-bindings.zsh
+source $HOMEBREW_PREFIX/opt/fzf/shell/completion.zsh
+set rtp+=$HOMEBREW_PREFIX/opt/fzf
+source <(fzf --zsh)
