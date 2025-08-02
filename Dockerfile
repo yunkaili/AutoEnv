@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/pytorch:24.12-py3
+FROM nvcr.io/nvidia/pytorch:24.12-py3 AS build-stage
 
 # ENV DEBIAN_FRONTEND noninteractive
 
@@ -30,7 +30,8 @@ ENV PATH=/home/linuxbrew/.linuxbrew/bin:$PATH
 RUN brew install axel the_silver_searcher gawk \
     ctags cscope idutils graphviz \
     tree tig vim neovim htop tmux ffmpeg wget curl fzf jq \
-    ripgrep gdu bottom lazygit
+    ripgrep gdu bottom lazygit \
+    starship
 
 USER root
 RUN chown -R $CONTAINER_USER: /home/linuxbrew/.linuxbrew
@@ -43,16 +44,9 @@ ENV LC_ALL=en_US.UTF-8
 ENV LC_TYPE=en_US.UTF-8
 
 # Pypi
-RUN pip3 install -U pip
 WORKDIR /root
 
-# Tmux
-RUN git clone https://github.com/gpakosz/.tmux.git
-RUN ln -s -f .tmux/.tmux.conf
-RUN cp .tmux/.tmux.conf.local .
-
 # Oh-my-zsh & Spaceship theme
-# RUN sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.2.1/zsh-in-docker.sh)" -- \
     -t https://github.com/denysdovhan/spaceship-prompt \
     -a 'SPACESHIP_DIR_TRUNC="0"' \
@@ -66,11 +60,23 @@ RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/
 
 RUN ln -s "/root/.oh-my-zsh/custom/themes/spaceship-prompt/spaceship.zsh-theme" "/root/.oh-my-zsh/custom/themes/spaceship.zsh-theme"
 
+# Tmux
+RUN git clone https://github.com/gpakosz/.tmux.git
+RUN ln -s -f .tmux/.tmux.conf
+RUN cp .tmux/.tmux.conf.local .
+
 # AstroNvim
-RUN git clone https://github.com/AstroNvim/AstroNvim ~/.config/nvim
-RUN nvim --headless -c 'quitall'
+RUN git clone --depth 1 https://github.com/AstroNvim/AstroNvim ~/.config/nvim
+# RUN nvim --headless -c "autocmd User LazySync quitall" -c "Lazy sync"
+
+#
+RUN echo "eval \"$(starship init zsh)\"" >> /root/.zshrc
 
 # Env
-RUN conda init zsh
 RUN echo "exec zsh" >> /root/.bash_profile
+
+# FROM alpine:latest AS final-stage
+# WORKDIR /
+# COPY --from=build-stage / /
+
 CMD ["bash", "-l"]
