@@ -72,7 +72,7 @@ fi
 brew install axel the_silver_searcher jq
 brew install gawk ctags cscope idutils graphviz tree tig
 brew install vim neovim htop tmux ffmpeg wget curl fzf
-brew install gdu bottom lazygit npm
+brew install gdu bottom lazygit npm antidote
 locale-gen en_US.UTF-8
 
 # ZSH Installation
@@ -97,24 +97,21 @@ else
 fi
 
 # oh-my-zsh plugins
-# spaceship prompt
-if [ ! -e "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/spaceship-prompt" ]; then 
-  git clone https://github.com/denysdovhan/spaceship-prompt.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/spaceship-prompt"
-  ln -s "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/spaceship-prompt/spaceship.zsh-theme" "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/spaceship.zsh-theme"
-fi
+brew install starship zsh-syntax-highlighting zsh-autosuggestions
+
+# starship
+echo "eval \"$(starship init zsh)\"" >> ${ZDOTDIR:-$HOME}/.zshrc
 # conda-zsh-completion
 if [ ! -e "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/conda-zsh-completion" ]; then
   git clone https://github.com/conda-incubator/conda-zsh-completion.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/conda-zsh-completion"
 fi
+# fzf-history-search
+git clone https://github.com/joshskidmore/zsh-fzf-history-search ${ZSH_CUSTOM:=~/.oh-my-zsh/custom}/plugins/zsh-fzf-history-search
 # auto-suggestions
-if [ ! -e "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]; then
-  git clone https://github.com/zsh-users/zsh-autosuggestions "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
-fi
+echo "source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh" >> ${ZDOTDIR:-$HOME}/.zshrc
 # syntax-highlight
-if [ ! -e "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ]; then
-  /bin/rm -rf "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
-  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
-fi
+echo "source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ${ZDOTDIR:-$HOME}/.zshrc
+
 
 # Tmux
 # .tmux
@@ -134,7 +131,7 @@ echo -e "ssh-add .ssh/id_rsa${WHITE}"
 if [ ! -d "${origin}/.config/nvim" ]; then
   cd ${origin}
   echo -e "${GREEN}astrioNvim${WHITE}"
-  git clone git@github.com:yunkaili/astronvim_4.0_cfg.git "${origin}/.config/nvim"
+  git clone git@github.com:yunkaili/astronvim_5.0_cfg.git "${origin}/.config/nvim"
   cd ${origin}
 fi
 

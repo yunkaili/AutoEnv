@@ -17,7 +17,7 @@ eval "$($HOMEBREW_PREFIX/bin/brew shellenv)"
 # load a random theme each time Oh My Zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="spaceship"
+ZSH_THEME="robbyrussell"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -89,7 +89,6 @@ plugins=(colored-man-pages
         tmux 
         vi-mode
         zsh-fzf-history-search
-        zsh-syntax-highlighting
     )
 
 source $ZSH/oh-my-zsh.sh
@@ -117,7 +116,7 @@ export EDITOR='nvim'
 # For a full list of active aliases, run `alias`.
 #
 # Example aliases
-alias du='du -h'
+alias du='gdu-go'
 alias df='df -h'
 alias ag='ag --noaffinity'
 alias ssh='ssh -CAXY'
@@ -144,9 +143,6 @@ trash()
 {
   mv $@ $HOME/.trash/
 }
-
-# syntax highlighting
-source $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 # conda zsh completion
 fpath+=~/.oh-my-zsh/custom/plugins/conda-zsh-completion
